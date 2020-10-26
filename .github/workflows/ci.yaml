@@ -75,11 +75,6 @@ jobs:
         run: |
           git diff -- '*.pb.go' || ( echo "Rerun go generate ./... locally and resubmit" && false )
           git diff -- '*.gen.go' || ( echo "Rerun go generate ./... locally and resubmit" && false )
-  captureRunEnv:
-    name: Capture CI Run Env
-    runs-on: ubuntu-latest
-    steps:
-      - run: printenv
   automerge:
     name: automerge
     runs-on: ubuntu-latest
@@ -102,25 +97,52 @@ jobs:
           GITHUB_LOGIN: nsmbot
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   packet:
+    name: packet
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Set up permissions
+        run: |
+          sudo chmod -R 777 /bin
       - uses: actions/setup-go@v1
         with:
           go-version: 1.15
-      - uses: azure/setup-kubectl@v1
-        id: install
-      - name: Setup packet cluster
+      - name: Install cloudtest
         run: |
-          go get github.com/networkservicemesh/cloudtest
+          go get github.com/networkservicemesh/cloudtest@master
+        env:
+          GO111MODULE: on
+          GOBIN: /bin
+      - uses: azure/setup-kubectl@v1
+      - uses: actions/checkout@v2
+      - name: Run cloudtest
+        run: |
           cloudtest
         env:
           PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
           PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: logs-${{ github.run_number }}
+          path: .tests/cloud_test/
   packet-cleanup:
     runs-on: ubuntu-latest
     needs:
       - packet
-      steps:
-        - run: |
-            scripts/destroy-old-clusters.sh
+    if: ${{ always() }}
+    steps:
+      - name: Set up permissions
+        run: |
+          sudo chmod -R 777 /bin
+      - uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - name: Clean up packet
+        run: |
+          go get github.com/networkservicemesh/cloudtest/pkg/providers/packet/packet_cleanup@master
+          packet_cleanup
+        env:
+          GO111MODULE: on
+          GOBIN: /bin
+          PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
+          PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18

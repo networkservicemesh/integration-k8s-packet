@@ -6,7 +6,7 @@ run:
   tests: true
 linters-settings:
   goheader:
-    template-path: "./.license/template.txt"
+    template-path: "./.ci/license/template.txt"
     values:
       const:
         year: 2020
@@ -30,7 +30,7 @@ linters-settings:
   golint:
     min-confidence: 0.8
   goimports:
-    local-prefixes: github.com/networkservicemesh/integration-k8s-kind
+    local-prefixes: github.com/networkservicemesh/integration-k8s-packet
   gocyclo:
     min-complexity: 15
   maligned:

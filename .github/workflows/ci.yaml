@@ -11,7 +11,7 @@ jobs:
       - name: yaml-lint
         uses: ibiqlik/action-yamllint@v1
         with:
-          config_file: .yamllint.yml
+          config_file: .ci/yamllint.yml
           strict: true
   shellcheck:
     name: shellcheck
@@ -75,3 +75,52 @@ jobs:
         run: |
           git diff -- '*.pb.go' || ( echo "Rerun go generate ./... locally and resubmit" && false )
           git diff -- '*.gen.go' || ( echo "Rerun go generate ./... locally and resubmit" && false )
+  captureRunEnv:
+    name: Capture CI Run Env
+    runs-on: ubuntu-latest
+    steps:
+      - run: printenv
+  automerge:
+    name: automerge
+    runs-on: ubuntu-latest
+    needs:
+      - packet
+    if: github.actor == 'nsmbot' && github.base_ref == 'master' && github.event_name == 'pull_request'
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+      - name: Fetch master
+        run: |
+          git remote -v
+          git fetch --depth=1 origin master
+      - name: Only allow go.mod and go.sum changes
+        run: |
+          find . -type f ! -name 'go.mod' ! -name 'go.sum' -exec git diff --exit-code origin/master -- {} +
+      - name: Automerge nsmbot PR
+        uses: ridedott/merge-me-action@master
+        with:
+          GITHUB_LOGIN: nsmbot
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  packet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      - uses: azure/setup-kubectl@v1
+        id: install
+      - name: Setup packet cluster
+        run: |
+          go get github.com/networkservicemesh/cloudtest
+          cloudtest
+        env:
+          PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
+          PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
+  packet-cleanup:
+    runs-on: ubuntu-latest
+    needs:
+      - packet
+      steps:
+        - run: |
+            scripts/destroy-old-clusters.sh

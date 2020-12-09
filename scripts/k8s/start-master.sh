@@ -2,6 +2,8 @@
 
 set -e
 
+K8S_DIR=$(dirname "$0")
+
 KUBERNETES_INIT_VERSION=1.18.1
 kubeadm init --kubernetes-version "${KUBERNETES_INIT_VERSION}" --pod-network-cidr=192.168.0.0/16 --skip-token-print
 
@@ -13,4 +15,4 @@ kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl versio
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
 
-kubeadm token create --print-join-command > join-cluster.sh
+kubeadm token create --print-join-command > "${K8S_DIR}/join-cluster.sh"

@@ -3,12 +3,8 @@ module github.com/networkservicemesh/integration-k8s-packet
 go 1.15
 
 require (
-	github.com/edwarnicke/exechelper v1.0.2
-	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.7.0
+	github.com/networkservicemesh/integration-tests v0.0.0-20201028160650-e7cfc05fce9d
 	github.com/stretchr/testify v1.6.1
-	k8s.io/api v0.18.1
-	k8s.io/apimachinery v0.18.1
-	k8s.io/client-go v0.18.1
-	sigs.k8s.io/yaml v1.2.0
 )
+
+replace github.com/networkservicemesh/integration-tests => github.com/Bolodya1997/integration-tests v0.0.0-20201231062025-7755a9d4e6c9

@@ -1,12 +1,9 @@
-github.com/Bolodya1997/integration-tests v0.0.0-20201231062025-7755a9d4e6c9 h1:iWbwWFZAuV55Cxk1QsrOjUw1vKN7ZfEy654WLZ5doH0=
-github.com/Bolodya1997/integration-tests v0.0.0-20201231062025-7755a9d4e6c9/go.mod h1:qUuHsO+E1kBdsn1VHdflp26Fqq7ezaTws3HQvhzqZOI=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/networkservicemesh/deployments-k8s v0.0.0-20201228071042-3fba7e9ec766/go.mod h1:ZX6hykdx2rnp/9U9GeELzAvf2JxUbU8AfPJdeb/ewIs=
-github.com/networkservicemesh/gotestmd v0.0.0-20201225153322-be52beee8d60 h1:X9+Nf5UB3lg1nBnOh+AdN0MjqDJ765+m/uyMYh2jpa4=
-github.com/networkservicemesh/gotestmd v0.0.0-20201225153322-be52beee8d60/go.mod h1:RsxZNZRDhTSkY21gzrJVC4ufT10bfeHRvrRTtypUx+k=
+github.com/networkservicemesh/gotestmd v0.0.0-20210113084344-22c7948c5525 h1:0wIS5rQ15/GeFJwPG6pQ3u8G416+/OI4a3yOeCqAlTE=
+github.com/networkservicemesh/gotestmd v0.0.0-20210113084344-22c7948c5525/go.mod h1:RsxZNZRDhTSkY21gzrJVC4ufT10bfeHRvrRTtypUx+k=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -19,6 +16,8 @@ github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 h1:YyJpGZS1sBuBCzLAR1VEpK193GlqGZbnPFnPV/5Rsb4=
 golang.org/x/sys v0.0.0-20191026070338-33540a1f6037/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210113000019-eaf3bda374d2 h1:F9vNgpIiamoF+Q1/c78bikg/NScXEtbZSNEpnRelOzs=
+golang.org/x/sys v0.0.0-20210113000019-eaf3bda374d2/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=

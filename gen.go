@@ -13,17 +13,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package main
 
-package main_test
-
-import (
-	"testing"
-
-	"github.com/stretchr/testify/suite"
-
-	"github.com/networkservicemesh/integration-k8s-packet/suites/sriov"
-)
-
-func Test(t *testing.T) {
-	suite.Run(t, new(sriov.Suite))
-}
+//go:generate bash -c "gotestmd ../deployments-k8s/examples ./suites"
+//go:generate goimports -w -local github.com/networkservicemesh "suites/"
+//go:generate goimports -w -local github.com/networkservicemesh/integration-k8s-packet "suites/"

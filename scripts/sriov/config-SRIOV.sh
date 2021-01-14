@@ -24,7 +24,7 @@ function config_link() {
   pci_addr="$(softlink_target "${device}")"
   test $? -eq 0 || return 1
 
-  pf_kernel_driver="$(softlink_target "${device/driver}")"
+  pf_kernel_driver="$(softlink_target "${device}/driver")"
   test $? -eq 0 || return 1
 
   trap "echo 0 > '${device}/sriov_numvfs'" err exit

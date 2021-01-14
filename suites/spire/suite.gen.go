@@ -12,7 +12,6 @@ type Suite struct {
 func (s *Suite) SetupSuite() {
 	r := s.Runner("../deployments-k8s/examples/spire")
 	s.T().Cleanup(func() {
-		r.Run(`kubectl -n spire get pods`)
 		r.Run(`kubectl delete ns spire`)
 	})
 	r.Run(`kubectl apply -k .`)

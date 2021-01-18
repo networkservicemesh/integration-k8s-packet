@@ -27,7 +27,7 @@ linters-settings:
   golint:
     min-confidence: 0.8
   goimports:
-    local-prefixes: github.com/networkservicemesh/integration-k8s-packet
+    local-prefixes: github.com/networkservicemesh
   gocyclo:
     min-complexity: 15
   maligned:

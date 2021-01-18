@@ -48,4 +48,3 @@ providers:
         ssh-keygen -t rsa -f $(tempdir)/sshkey -q -N ""
         /bin/bash -c "eval `ssh-agent -s`; ssh-add $(tempdir)/sshkey"
       start: scripts/create-kubernetes-cluster.sh $(device.Master.pub.ip.4) $(device.Worker.pub.ip.4) "$(tempdir)/sshkey"
-#      cleanup: scripts/destroy-old-clusters.sh

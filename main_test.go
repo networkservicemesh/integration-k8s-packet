@@ -21,9 +21,9 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/networkservicemesh/integration-k8s-packet/suites/sriov"
+	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
-func Test(t *testing.T) {
+func TestSRIOV(t *testing.T) {
 	suite.Run(t, new(sriov.Suite))
 }

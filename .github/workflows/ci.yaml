@@ -121,7 +121,14 @@ jobs:
         env:
           PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
           PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
-      - name: Upload logs               # 8. Upload logs
+      - name: Publish test report       # 8. Publish test report
+        uses: mikepenz/action-junit-report@v2.1.0
+        if: ${{ always() }}
+        with:
+          report_paths: "**/cloud_test/results/junit.xml"
+          suite_regex: "Test*"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload logs               # 9. Upload logs
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:

@@ -99,7 +99,12 @@ jobs:
         uses: actions/setup-go@v1
         with:
           go-version: 1.15
+      - name: Checkout files            # 6. Checkout files
+        uses: actions/checkout@v2
+        with:
+          path: ${{ github.repository }}
       - name: Install cloudtest         # 4. Install cloudtest
+        working-directory: ${{ github.repository }}
         run: |
           go get github.com/networkservicemesh/cloudtest@master
         env:
@@ -110,10 +115,6 @@ jobs:
         with:
           repository: networkservicemesh/deployments-k8s
           path: networkservicemesh/deployments-k8s
-      - name: Checkout files            # 6. Checkout files
-        uses: actions/checkout@v2
-        with:
-          path: ${{ github.repository }}
       - name: Run tests with cloudtest  # 7. Run tests with cloudtest
         working-directory: ${{ github.repository }}
         run: |

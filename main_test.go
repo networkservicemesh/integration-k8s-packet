@@ -21,8 +21,13 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
+
+func TestMemory(t *testing.T) {
+	suite.Run(t, new(memory.Suite))
+}
 
 func TestSRIOV(t *testing.T) {
 	suite.Run(t, new(sriov.Suite))

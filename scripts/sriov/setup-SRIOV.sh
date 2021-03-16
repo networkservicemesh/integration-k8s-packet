@@ -39,17 +39,26 @@ wait_pids "${pids}" "SR-IOV setup failed" || exit 3
 
 sleep 5
 
-i=0
 for ip in ${master_ip} ${worker_ip}; do
-  ssh ${SSH_OPTS} root@${ip} -o ConnectTimeout=1 true
-  while test $? -ne 0; do
-    ((i++))
-    # ~15 minutes to start
-    if test $i -gt 300; then
-      echo "timeout waiting for the ${ip} to start, aborting..." && exit 4
+  success_attempts=0
+  # ~20 minutes to start
+  for i in {1..400}; do
+    if [[ ${i} == 400 ]]; then
+      echo "timeout waiting for the ${ip} to start, aborting..."
+      exit 4
     fi
+
+    if ssh ${SSH_OPTS} root@${ip} -o ConnectTimeout=1 true; then
+      ((success_attempts++))
+    else
+      success_attempts=0
+    fi
+
+    if [[ ${success_attempts} == 3 ]]; then
+      break
+    fi
+
     sleep 5
-    ssh ${SSH_OPTS} root@${ip} -o ConnectTimeout=1 true
   done
 done
 

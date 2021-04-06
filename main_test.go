@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/networkservicemesh/integration-tests/suites/memory"
+	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
 	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
@@ -31,4 +32,8 @@ func TestMemory(t *testing.T) {
 
 func TestSRIOV(t *testing.T) {
 	suite.Run(t, new(sriov.Suite))
+}
+
+func TestMultiForwarder(t *testing.T) {
+	suite.Run(t, new(multiforwarder.Suite))
 }

@@ -41,7 +41,7 @@ sleep 5
 
 for ip in ${master_ip} ${worker_ip}; do
   success_attempts=0
-  # ~20 minutes to start
+  # ~1 hour to start
   for i in {1..400}; do
     if [[ ${i} == 400 ]]; then
       echo "timeout waiting for the ${ip} to start, aborting..."
@@ -58,7 +58,7 @@ for ip in ${master_ip} ${worker_ip}; do
       break
     fi
 
-    sleep 5
+    sleep 15
   done
 done
 

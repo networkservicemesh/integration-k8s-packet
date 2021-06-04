@@ -21,12 +21,26 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/networkservicemesh/integration-tests/extensions/base"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
 	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
+func setupDeployments(t *testing.T) {
+	// this function is a temporary workaround for the following issue:
+	// https://github.com/networkservicemesh/integration-k8s-packet/issues/68
+
+	baseSuite := base.Suite{}
+	baseSuite.SetT(t)
+	baseSuite.SetupSuite()
+
+	r := baseSuite.Runner("../deployments-k8s/apps/forwarder-vpp")
+	r.Run("sed -i 's/hostNetwork:\\ true/hostNetwork:\\ false/g' forwarder.yaml")
+}
+
 func TestMemory(t *testing.T) {
+	setupDeployments(t)
 	suite.Run(t, new(memory.Suite))
 }
 
@@ -35,5 +49,6 @@ func TestSRIOV(t *testing.T) {
 }
 
 func TestMultiForwarder(t *testing.T) {
+	setupDeployments(t)
 	suite.Run(t, new(multiforwarder.Suite))
 }

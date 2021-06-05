@@ -48,7 +48,7 @@ for ip in ${master_ip} ${worker_ip}; do
       exit 4
     fi
 
-    if ssh ${SSH_OPTS} root@${ip} -o ConnectTimeout=1 true; then
+    if ssh ${SSH_OPTS} -o ConnectTimeout=1 -o BatchMode=yes root@${ip} true; then
       ((success_attempts++))
     else
       success_attempts=0

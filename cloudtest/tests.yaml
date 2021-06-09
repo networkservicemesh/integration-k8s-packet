@@ -10,3 +10,6 @@ executions:
       - packet
     cluster-env:
       - KUBECONFIG
+    on-fail: |
+      ps -AF --forest -w
+      date "+%Y-%m-%d %H:%M:%S"

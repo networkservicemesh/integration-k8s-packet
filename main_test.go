@@ -21,9 +21,9 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/networkservicemesh/integration-k8s-packet/suites/multiforwarder"
+	"github.com/networkservicemesh/integration-k8s-packet/suites/sriov"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
-	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
-	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
 func TestMemory(t *testing.T) {

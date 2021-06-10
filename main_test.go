@@ -31,7 +31,6 @@ import (
 // func TestSRIOV(t *testing.T) {
 // 	suite.Run(t, new(sriov.Suite))
 // }
-//
 
 func TestMultiForwarder(t *testing.T) {
 	suite.Run(t, new(multiforwarder.Suite))

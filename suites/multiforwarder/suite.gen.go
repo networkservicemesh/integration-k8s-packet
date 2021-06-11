@@ -212,8 +212,8 @@ func TestVfio2Noop_vanilla_better_delete(s *Suite) {
 	s.T().Cleanup(func() {
 		r.Run(`NSE=$(kubectl -n ${NAMESPACE} get pods -l app=nse-vfio --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')`)
 		r.Run(`kubectl -n ${NAMESPACE} exec ${NSE} --container ponger -- /bin/bash -c '\` + "\n" + `  sleep 10 && kill $(pgrep "pingpong") 1>/dev/null 2>&1 &               \` + "\n" + `'`)
-		r.Run(`kubectl delete -f ../../../apps/nse-vfio -n $NAMESPACE`)
-		r.Run(`kubectl delete -f ../../../apps/nsc-vfio -n $NAMESPACE`)
+		r.Run(`kubectl delete -f ../../../apps/nse-vfio/nse.yaml -n $NAMESPACE`)
+		r.Run(`kubectl delete -f ../../../apps/nsc-vfio/nsc.yaml -n $NAMESPACE`)
 		r.Run(`timeout -v --kill-after=10s 30s kubectl delete ns ${NAMESPACE} --grace-period=20 --timeout=25s`)
 	})
 	r.Run(`NAMESPACE=($(kubectl create -f ../namespace.yaml)[0])` + "\n" + `NAMESPACE=${NAMESPACE:10}`)
@@ -239,8 +239,8 @@ func TestVfio2Noop_vanilla_better_delete_2(s *Suite) {
 	s.T().Cleanup(func() {
 		r.Run(`NSE=$(kubectl -n ${NAMESPACE} get pods -l app=nse-vfio --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')`)
 		r.Run(`kubectl -n ${NAMESPACE} exec ${NSE} --container ponger -- /bin/bash -c '\` + "\n" + `  sleep 10 && kill $(pgrep "pingpong") 1>/dev/null 2>&1 &               \` + "\n" + `'`)
-		r.Run(`kubectl delete -f ../../../apps/nsc-vfio -n $NAMESPACE`) // different order of deletion here
-		r.Run(`kubectl delete -f ../../../apps/nse-vfio -n $NAMESPACE`)
+		r.Run(`kubectl delete -f ../../../apps/nsc-vfio/nsc.yaml -n $NAMESPACE`) // different order of deletion here
+		r.Run(`kubectl delete -f ../../../apps/nse-vfio/nse.yaml -n $NAMESPACE`)
 		r.Run(`timeout -v --kill-after=10s 30s kubectl delete ns ${NAMESPACE} --grace-period=20 --timeout=25s`)
 	})
 	r.Run(`NAMESPACE=($(kubectl create -f ../namespace.yaml)[0])` + "\n" + `NAMESPACE=${NAMESPACE:10}`)

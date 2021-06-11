@@ -11,6 +11,12 @@ executions:
     cluster-env:
       - KUBECONFIG
     on-fail: |
+      date "+%Y-%m-%d %H:%M:%S"
       kubectl get ns
       kubectl get all --all-namespaces
+      NAMESPACE=$(kubectl get ns --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep ns-)
+      kubectl -n $NAMESPACE get pods
+      kubectl -n $NAMESPACE describe pods
+      NSE=$(kubectl -n ${NAMESPACE} get pods -l app=nse-vfio --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+      kubectl -n $NAMESPACE exec $NSE -- ps
       date "+%Y-%m-%d %H:%M:%S"

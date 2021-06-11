@@ -12,4 +12,6 @@ executions:
       - KUBECONFIG
     on-fail: |
       ps -AF --forest -w
+      kubectl get ns
+      kubectl get all --all-namespaces
       date "+%Y-%m-%d %H:%M:%S"

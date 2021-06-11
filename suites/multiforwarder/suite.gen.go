@@ -207,12 +207,13 @@ func (s *Suite) SetupSuite() {
 // 	}
 // }
 
-func TestVfio2Noop_vanilla_sleep30(s *Suite) {
+func TestVfio2Noop_vanilla_better_delete(s *Suite) {
 	r := s.Runner("../deployments-k8s/examples/use-cases/Vfio2Noop")
 	s.T().Cleanup(func() {
 		r.Run(`NSE=$(kubectl -n ${NAMESPACE} get pods -l app=nse-vfio --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')`)
+		r.Run(`kubectl delete ns ${NAMESPACE} --wait=false`)
 		r.Run(`kubectl -n ${NAMESPACE} exec ${NSE} --container ponger -- /bin/bash -c '\` + "\n" + `  sleep 30 && kill $(pgrep "pingpong") 1>/dev/null 2>&1 &               \` + "\n" + `'`)
-		r.Run(`kubectl delete ns ${NAMESPACE}`)
+		r.Run(`kubectl delete ns ${NAMESPACE} --grace-period=20 --timeout=30s`)
 	})
 	r.Run(`NAMESPACE=($(kubectl create -f ../namespace.yaml)[0])` + "\n" + `NAMESPACE=${NAMESPACE:10}`)
 	r.Run(`kubectl exec -n spire spire-server-0 -- \` + "\n" + `/opt/spire/bin/spire-server entry create \` + "\n" + `-spiffeID spiffe://example.org/ns/${NAMESPACE}/sa/default \` + "\n" + `-parentID spiffe://example.org/ns/spire/sa/spire-agent \` + "\n" + `-selector k8s:ns:${NAMESPACE} \` + "\n" + `-selector k8s:sa:default`)
@@ -225,9 +226,9 @@ func TestVfio2Noop_vanilla_sleep30(s *Suite) {
 	r.Run(`dpdk_ping`)
 }
 
-func (s *Suite) TestVfio2Noop_3_vanilla_sleep30_loop() {
-	for i := 0; i < 6; i++ {
-		s.Run("", func() { TestVfio2Noop_vanilla_sleep30(s) })
+func (s *Suite) TestVfio2Noop_3_vanilla_better_delete_loop() {
+	for i := 0; i < 3; i++ {
+		s.Run("", func() { TestVfio2Noop_vanilla_better_delete(s) })
 	}
 }
 
@@ -250,7 +251,7 @@ func TestVfio2Noop_vanilla(s *Suite) {
 }
 
 func (s *Suite) TestVfio2Noop_4_vanilla_loop() {
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 3; i++ {
 		s.Run("", func() { TestVfio2Noop_vanilla(s) })
 	}
 }

@@ -228,8 +228,8 @@ func TestVfio2Noop_vanilla_better_delete(s *Suite) {
 	r.Run(`dpdk_ping`)
 }
 
-func (s *Suite) TestVfio2Noop_3_vanilla_better_delete_loop() {
-	for i := 0; i < 3; i++ {
+func (s *Suite) TestVfio2Noop_03_vanilla_better_delete_loop() {
+	for i := 0; i < 5; i++ {
 		s.Run("", func() { TestVfio2Noop_vanilla_better_delete(s) })
 	}
 }
@@ -255,8 +255,8 @@ func TestVfio2Noop_vanilla_better_delete_2(s *Suite) {
 	r.Run(`dpdk_ping`)
 }
 
-func (s *Suite) TestVfio2Noop_4_vanilla_better_delete_2_loop() {
-	for i := 0; i < 3; i++ {
+func (s *Suite) TestVfio2Noop_04_vanilla_better_delete_2_loop() {
+	for i := 0; i < 5; i++ {
 		s.Run("", func() { TestVfio2Noop_vanilla_better_delete(s) })
 	}
 }

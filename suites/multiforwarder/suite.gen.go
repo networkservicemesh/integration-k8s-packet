@@ -211,8 +211,9 @@ func TestVfio2Noop_vanilla_better_delete(s *Suite) {
 	r := s.Runner("../deployments-k8s/examples/use-cases/Vfio2Noop")
 	s.T().Cleanup(func() {
 		r.Run(`NSE=$(kubectl -n ${NAMESPACE} get pods -l app=nse-vfio --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')`)
-		r.Run(`kubectl delete ns ${NAMESPACE} --wait=false`)
 		r.Run(`kubectl -n ${NAMESPACE} exec ${NSE} --container ponger -- /bin/bash -c '\` + "\n" + `  sleep 10 && kill $(pgrep "pingpong") 1>/dev/null 2>&1 &               \` + "\n" + `'`)
+		r.Run(`kubectl delete -f ../../../apps/nse-vfio -n $NAMESPACE`)
+		r.Run(`kubectl delete -f ../../../apps/nsc-vfio -n $NAMESPACE`)
 		r.Run(`timeout -v --kill-after=10s 30s kubectl delete ns ${NAMESPACE} --grace-period=20 --timeout=25s`)
 	})
 	r.Run(`NAMESPACE=($(kubectl create -f ../namespace.yaml)[0])` + "\n" + `NAMESPACE=${NAMESPACE:10}`)
@@ -228,6 +229,33 @@ func TestVfio2Noop_vanilla_better_delete(s *Suite) {
 }
 
 func (s *Suite) TestVfio2Noop_3_vanilla_better_delete_loop() {
+	for i := 0; i < 3; i++ {
+		s.Run("", func() { TestVfio2Noop_vanilla_better_delete(s) })
+	}
+}
+
+func TestVfio2Noop_vanilla_better_delete_2(s *Suite) {
+	r := s.Runner("../deployments-k8s/examples/use-cases/Vfio2Noop")
+	s.T().Cleanup(func() {
+		r.Run(`NSE=$(kubectl -n ${NAMESPACE} get pods -l app=nse-vfio --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')`)
+		r.Run(`kubectl -n ${NAMESPACE} exec ${NSE} --container ponger -- /bin/bash -c '\` + "\n" + `  sleep 10 && kill $(pgrep "pingpong") 1>/dev/null 2>&1 &               \` + "\n" + `'`)
+		r.Run(`kubectl delete -f ../../../apps/nsc-vfio -n $NAMESPACE`) // different order of deletion here
+		r.Run(`kubectl delete -f ../../../apps/nse-vfio -n $NAMESPACE`)
+		r.Run(`timeout -v --kill-after=10s 30s kubectl delete ns ${NAMESPACE} --grace-period=20 --timeout=25s`)
+	})
+	r.Run(`NAMESPACE=($(kubectl create -f ../namespace.yaml)[0])` + "\n" + `NAMESPACE=${NAMESPACE:10}`)
+	r.Run(`echo my namespace is ${NAMESPACE}`)
+	r.Run(`kubectl exec -n spire spire-server-0 -- \` + "\n" + `/opt/spire/bin/spire-server entry create \` + "\n" + `-spiffeID spiffe://example.org/ns/${NAMESPACE}/sa/default \` + "\n" + `-parentID spiffe://example.org/ns/spire/sa/spire-agent \` + "\n" + `-selector k8s:ns:${NAMESPACE} \` + "\n" + `-selector k8s:sa:default`)
+	r.Run(`cat > kustomization.yaml <<EOF` + "\n" + `---` + "\n" + `apiVersion: kustomize.config.k8s.io/v1beta1` + "\n" + `kind: Kustomization` + "\n" + `` + "\n" + `namespace: ${NAMESPACE}` + "\n" + `` + "\n" + `bases:` + "\n" + `- ../../../apps/nsc-vfio` + "\n" + `- ../../../apps/nse-vfio` + "\n" + `EOF`)
+	r.Run(`kubectl apply -k .`)
+	r.Run(`kubectl -n ${NAMESPACE} wait --for=condition=ready --timeout=1m pod -l app=nsc-vfio`)
+	r.Run(`kubectl -n ${NAMESPACE} wait --for=condition=ready --timeout=1m pod -l app=nse-vfio`)
+	r.Run(`NSC=$(kubectl -n ${NAMESPACE} get pods -l app=nsc-vfio --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')`)
+	r.Run(`function dpdk_ping() {` + "\n" + `  err_file="$(mktemp)"` + "\n" + `  trap 'rm -f "${err_file}"' RETURN` + "\n" + `` + "\n" + `  out="$(kubectl -n ${NAMESPACE} exec ${NSC} --container pinger -- /bin/bash -c '\` + "\n" + `    /root/dpdk-pingpong/build/app/pingpong                                       \` + "\n" + `      --no-huge                                                                  \` + "\n" + `      --                                                                         \` + "\n" + `      -n 500                                                                     \` + "\n" + `      -c                                                                         \` + "\n" + `      -C 0a:11:22:33:44:55                                                       \` + "\n" + `      -S 0a:55:44:33:22:11                                                       \` + "\n" + `  ' 2>"${err_file}")"` + "\n" + `` + "\n" + `  if [[ "$?" != 0 ]]; then` + "\n" + `    cat "${err_file}" 1>&2` + "\n" + `    echo "${out}" 1>&2` + "\n" + `    return 1` + "\n" + `  fi` + "\n" + `` + "\n" + `  if ! pong_packets="$(echo "${out}" | grep "rx .* pong packets" | sed -E 's/rx ([0-9]*) pong packets/\1/g')"; then` + "\n" + `    cat "${err_file}" 1>&2` + "\n" + `    echo "${out}" 1>&2` + "\n" + `    return 1` + "\n" + `  fi` + "\n" + `` + "\n" + `  if [[ "${pong_packets}" == 0 ]]; then` + "\n" + `    cat "${err_file}" 1>&2` + "\n" + `    echo "${out}" 1>&2` + "\n" + `    return 1` + "\n" + `  fi` + "\n" + `` + "\n" + `  echo "${out}"` + "\n" + `  return 0` + "\n" + `}`)
+	r.Run(`dpdk_ping`)
+}
+
+func (s *Suite) TestVfio2Noop_4_vanilla_better_delete_2_loop() {
 	for i := 0; i < 3; i++ {
 		s.Run("", func() { TestVfio2Noop_vanilla_better_delete(s) })
 	}
@@ -252,7 +280,7 @@ func TestVfio2Noop_vanilla(s *Suite) {
 	r.Run(`dpdk_ping`)
 }
 
-func (s *Suite) TestVfio2Noop_4_vanilla_loop() {
+func (s *Suite) TestVfio2Noop_10_vanilla_loop() {
 	for i := 0; i < 3; i++ {
 		s.Run("", func() { TestVfio2Noop_vanilla(s) })
 	}

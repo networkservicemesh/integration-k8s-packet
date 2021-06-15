@@ -19,9 +19,11 @@ package shell
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -29,30 +31,27 @@ import (
 )
 
 const (
-	bufferSize     = 1 << 16
-	successMessage = "gotestmd/pkg/suites/shell/Bash.const.successMessageIndicator"
-	errorMessage   = "gotestmd/pkg/suites/shell/Bash.const.errorMessage"
-	checkStatusCmd = `if [ $? -eq 0 ]; then
-	echo ` + successMessage + `
-else
-	echo ` + errorMessage + `
-fi`
-	errEndCmd = `echo >&2 ` + successMessage
+	bufferSize           = 1 << 16
+	finishMessage        = "gotestmd/pkg/suites/shell/Bash.const.finish"
+	cmdPrintStatusCode   = `echo -e \\n$?`
+	cmdPrintStdoutFinish = `echo ` + finishMessage
+	cmdPrintStderrFinish = `echo >&2 ` + finishMessage
 )
 
 // Bash is api for bash procces
 type Bash struct {
-	Dir       string
-	Env       []string
-	once      sync.Once
-	resources []io.Closer
-	stdin     io.Writer
-	stdout    io.Reader
-	stderr    io.Reader
-	ctx       context.Context
-	cancel    context.CancelFunc
-	cmd       *exec.Cmd
-	logger    *logrus.Logger
+	Dir            string
+	Env            []string
+	once           sync.Once
+	resources      []io.Closer
+	stdin          io.Writer
+	stdout         io.Reader
+	stderr         io.Reader
+	ctx            context.Context
+	cancel         context.CancelFunc
+	cmd            *exec.Cmd
+	logger         *logrus.Logger
+	pipeReadBuffer []byte
 }
 
 // Close closses current bash process and all used resources
@@ -68,6 +67,7 @@ func (b *Bash) Close() {
 
 func (b *Bash) init() {
 	b.ctx, b.cancel = context.WithCancel(context.Background())
+	b.pipeReadBuffer = make([]byte, bufferSize)
 	p, err := exec.LookPath("bash")
 	if err != nil {
 		panic(err.Error())
@@ -108,69 +108,91 @@ func (b *Bash) init() {
 	}
 }
 
-func (b *Bash) readPipe(pipe io.Reader) (result string, success bool, err error) {
-	var buffer []byte = make([]byte, bufferSize)
+func (b *Bash) readUntilFinishMessage(pipe io.Reader) (string, error) {
 	cur := 0
 	for b.ctx.Err() == nil {
-		// b.logger.WithField("func", "bash/stdoutHandler").Debug("read")
-		n, err := pipe.Read(buffer[cur:])
+		n, err := pipe.Read(b.pipeReadBuffer[cur:])
 		if err != nil {
-			// b.logger.WithField("func", "bash/stdoutHandler").Debug("read err")
-			return "", false, err
+			return "", err
 		}
-		// b.logger.WithField("func", "bash/stdoutHandler").Debug("read OK")
-		r := strings.TrimSpace(string(buffer[:cur+n]))
-		if strings.HasSuffix(r, successMessage) {
-			if len(r) > len(successMessage) {
-				result = r[:len(r)-len("\n")-len(successMessage)]
-			}
-			success = true
-			break
-		}
-		if strings.HasSuffix(r, errorMessage) {
-			if len(r) > len(errorMessage) {
-				result = r[:len(r)-len("\n")-len(errorMessage)]
-			}
-			break
+		result := strings.TrimSpace(string(b.pipeReadBuffer[:cur+n]))
+		fmt.Println("read:", result)
+		if strings.HasSuffix(result, finishMessage) {
+			result = strings.TrimSpace(result[:len(result)-len(finishMessage)])
+			return result, nil
 		}
 		cur += n
-		if cur == bufferSize {
-			return "", false, errors.New("read buffer overflow")
+		if cur == len(b.pipeReadBuffer) {
+			return "", errors.New("read buffer overflow")
 		}
 	}
-	return result, success, nil
+	return "", b.ctx.Err()
 }
 
-// Run runs the cmd. Returs stdout and stderror as a result.
-func (b *Bash) Run(s string) (stdout string, stderr string, success bool, err error) {
+type RunResult struct {
+	Stdout   string
+	Stderr   string
+	ExitCode int
+}
+
+// Run runs the command
+func (b *Bash) Run(s string) (RunResult, error) {
 	b.once.Do(b.init)
 
 	if b.ctx.Err() != nil {
-		return "", "", false, b.ctx.Err()
+		return RunResult{}, b.ctx.Err()
 	}
 
-	_, err = b.stdin.Write([]byte(s + "\n"))
+	_, err := b.stdin.Write([]byte(s + "\n"))
 	if err != nil {
-		return "", "", false, err
+		return RunResult{}, err
 	}
 
-	_, err = b.stdin.Write([]byte(checkStatusCmd + "\n"))
+	_, err = b.stdin.Write([]byte(cmdPrintStatusCode + "\n"))
 	if err != nil {
-		return "", "", false, err
-	}
-	stdout, success, err = b.readPipe(b.stdout)
-	if err != nil {
-		return "", "", false, err
+		return RunResult{}, err
 	}
 
-	_, err = b.stdin.Write([]byte(errEndCmd + "\n"))
+	_, err = b.stdin.Write([]byte(cmdPrintStdoutFinish + "\n"))
 	if err != nil {
-		return "", "", false, err
-	}
-	stderr, _, err = b.readPipe(b.stderr)
-	if err != nil {
-		return "", "", false, err
+		return RunResult{}, err
 	}
 
-	return stdout, stderr, success, nil
+	stdout, err := b.readUntilFinishMessage(b.stdout)
+	if err != nil {
+		return RunResult{}, err
+	}
+
+	lastLineBreak := strings.LastIndex(stdout, "\n")
+	var exitCodeString string
+	if lastLineBreak == -1 {
+		fmt.Println("line break not found")
+		exitCodeString = stdout
+		stdout = ""
+	} else {
+		fmt.Println("line break found!")
+		exitCodeString = stdout[(lastLineBreak + 1):]
+		stdout = strings.TrimSpace(stdout[:lastLineBreak])
+	}
+	fmt.Println("exit code string:", exitCodeString)
+	exitCode64, err := strconv.ParseInt(exitCodeString, 0, 9)
+	if err != nil {
+		return RunResult{}, err
+	}
+
+	_, err = b.stdin.Write([]byte(cmdPrintStderrFinish + "\n"))
+	if err != nil {
+		return RunResult{}, err
+	}
+	stderr, err := b.readUntilFinishMessage(b.stderr)
+	if err != nil {
+		return RunResult{}, err
+	}
+
+	result := RunResult{
+		Stdout:   stdout,
+		Stderr:   stderr,
+		ExitCode: int(exitCode64),
+	}
+	return result, nil
 }

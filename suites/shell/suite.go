@@ -95,17 +95,18 @@ func (r *Runner) Run(cmd string) {
 	timeoutCh := time.After(time.Minute)
 	for {
 		r.logger.WithField(r.t.Name(), "stdin").Info(cmd)
-		stdout, stderr, success, err := r.bash.Run(cmd)
+		runResult, err := r.bash.Run(cmd)
 		require.NoError(r.t, err)
-		if stdout != "" {
-			r.logger.WithField(r.t.Name(), "stdout").Info(stdout)
+		if runResult.Stdout != "" {
+			r.logger.WithField(r.t.Name(), "stdout").Info(runResult.Stdout)
 		}
-		if stderr != "" {
-			r.logger.WithField(r.t.Name(), "stderr").Info(stderr)
+		if runResult.Stderr != "" {
+			r.logger.WithField(r.t.Name(), "stderr").Info(runResult.Stderr)
 		}
-		if success {
+		if runResult.ExitCode == 0 && runResult.Stderr == "" {
 			return
 		}
+		r.logger.WithField(r.t.Name(), "exitCode").Info(runResult.ExitCode)
 		select {
 		case <-timeoutCh:
 			r.logger.Fatal("timeout reached but the command didn't succeed")

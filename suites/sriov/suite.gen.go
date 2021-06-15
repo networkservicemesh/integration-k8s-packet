@@ -4,6 +4,7 @@ package sriov
 import (
 	"github.com/stretchr/testify/suite"
 
+	"github.com/networkservicemesh/integration-k8s-packet/suites/shell"
 	"github.com/networkservicemesh/integration-tests/extensions/base"
 	"github.com/networkservicemesh/integration-tests/suites/spire"
 )
@@ -23,7 +24,9 @@ func (s *Suite) SetupSuite() {
 			v.SetupSuite()
 		}
 	}
-	r := s.Runner("../deployments-k8s/examples/sriov")
+	var shellSuite shell.Suite
+	shellSuite.SetT(s.T())
+	r := shellSuite.Runner("../deployments-k8s/examples/sriov")
 	s.T().Cleanup(func() {
 		r.Run(`kubectl delete ns nsm-system`)
 	})
@@ -32,7 +35,9 @@ func (s *Suite) SetupSuite() {
 	r.Run(`kubectl apply -k .`)
 }
 func (s *Suite) TestSriovKernel2Noop() {
-	r := s.Runner("../deployments-k8s/examples/use-cases/SriovKernel2Noop")
+	var shellSuite shell.Suite
+	shellSuite.SetT(s.T())
+	r := shellSuite.Runner("../deployments-k8s/examples/use-cases/SriovKernel2Noop")
 	s.T().Cleanup(func() {
 		r.Run(`kubectl delete ns ${NAMESPACE}`)
 	})
@@ -49,7 +54,9 @@ func (s *Suite) TestSriovKernel2Noop() {
 	r.Run(`kubectl -n ${NAMESPACE} exec ${NSC} -- ping -c 4 172.16.1.100`)
 }
 func (s *Suite) TestVfio2Noop() {
-	r := s.Runner("../deployments-k8s/examples/use-cases/Vfio2Noop")
+	var shellSuite shell.Suite
+	shellSuite.SetT(s.T())
+	r := shellSuite.Runner("../deployments-k8s/examples/use-cases/Vfio2Noop")
 	s.T().Cleanup(func() {
 		r.Run(`NSE=$(kubectl -n ${NAMESPACE} get pods -l app=nse-vfio --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')`)
 		r.Run(`kubectl -n ${NAMESPACE} exec ${NSE} --container ponger -- /bin/bash -c '\` + "\n" + `  sleep 10 && kill $(pgrep "pingpong") 1>/dev/null 2>&1 &               \` + "\n" + `'`)

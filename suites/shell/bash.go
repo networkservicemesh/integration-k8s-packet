@@ -129,6 +129,7 @@ func (b *Bash) readUntilFinishMessage(pipe io.Reader) (string, error) {
 	return "", b.ctx.Err()
 }
 
+// RunResult contains full result of an executed command
 type RunResult struct {
 	Stdout   string
 	Stderr   string

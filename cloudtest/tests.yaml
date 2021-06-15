@@ -14,12 +14,8 @@ executions:
       date "+%Y-%m-%d %H:%M:%S"
       kubectl get ns
       kubectl get all --all-namespaces
-      echo namespaces:
-      kubectl get ns --template "{{range .items}}{{.metadata.name}}{{\"\\n\"}}{{end}}"
-      NAMESPACE=$(kubectl get ns --template "{{range .items}}{{.metadata.name}}{{\"\\n\"}}{{end}}" | grep ns-)
-      echo found namespace $NAMESPACE
-      kubectl -n $NAMESPACE get pods
-      kubectl -n $NAMESPACE describe pods
-      NSE=$(kubectl -n ${NAMESPACE} get pods -l app=nse-vfio --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
-      kubectl -n $NAMESPACE exec $NSE -- ps
+      echo found namespace $(kubectl get ns --template "{{range .items}}{{.metadata.name}}{{\"\\n\"}}{{end}}" | grep ns-)
+      kubectl -n $(kubectl get ns --template "{{range .items}}{{.metadata.name}}{{\"\\n\"}}{{end}}" | grep ns-) get pods
+      kubectl -n $(kubectl get ns --template "{{range .items}}{{.metadata.name}}{{\"\\n\"}}{{end}}" | grep ns-) describe pods
+      kubectl -n $(kubectl get ns --template "{{range .items}}{{.metadata.name}}{{\"\\n\"}}{{end}}" | grep ns-) exec $(kubectl -n $(kubectl get ns --template "{{range .items}}{{.metadata.name}}{{\"\\n\"}}{{end}}" | grep ns-) get pods -l app=nse-vfio --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}') -- ps
       date "+%Y-%m-%d %H:%M:%S"

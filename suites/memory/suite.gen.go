@@ -12,6 +12,7 @@ import (
 type Suite struct {
 	base.Suite
 	spireSuite spire.Suite
+	shellSuite shell.Suite
 }
 
 func (s *Suite) SetupSuite() {
@@ -24,9 +25,8 @@ func (s *Suite) SetupSuite() {
 			v.SetupSuite()
 		}
 	}
-	var shellSuite shell.Suite
-	shellSuite.SetT(s.T())
-	r := shellSuite.Runner("../deployments-k8s/examples/memory")
+	s.shellSuite.SetT(s.T())
+	r := s.shellSuite.Runner("../deployments-k8s/examples/memory")
 	s.T().Cleanup(func() {
 		r.Run(`kubectl delete ns nsm-system`)
 	})
@@ -35,9 +35,7 @@ func (s *Suite) SetupSuite() {
 	r.Run(`kubectl apply -k .`)
 }
 func (s *Suite) TestKernel2Kernel() {
-	var shellSuite shell.Suite
-	shellSuite.SetT(s.T())
-	r := shellSuite.Runner("../deployments-k8s/examples/use-cases/Kernel2Kernel")
+	r := s.shellSuite.Runner("../deployments-k8s/examples/use-cases/Kernel2Kernel")
 	s.T().Cleanup(func() {
 		r.Run(`kubectl delete ns ${NAMESPACE}`)
 	})
@@ -56,9 +54,7 @@ func (s *Suite) TestKernel2Kernel() {
 	r.Run(`kubectl exec ${NSE} -n ${NAMESPACE} -- ping -c 4 172.16.1.101`)
 }
 func (s *Suite) TestKernel2Vxlan2Kernel() {
-	var shellSuite shell.Suite
-	shellSuite.SetT(s.T())
-	r := shellSuite.Runner("../deployments-k8s/examples/use-cases/Kernel2Vxlan2Kernel")
+	r := s.shellSuite.Runner("../deployments-k8s/examples/use-cases/Kernel2Vxlan2Kernel")
 	s.T().Cleanup(func() {
 		r.Run(`kubectl delete ns ${NAMESPACE}`)
 	})
@@ -77,9 +73,7 @@ func (s *Suite) TestKernel2Vxlan2Kernel() {
 	r.Run(`kubectl exec ${NSE} -n ${NAMESPACE} -- ping -c 4 172.16.1.101`)
 }
 func (s *Suite) TestMemif2Memif() {
-	var shellSuite shell.Suite
-	shellSuite.SetT(s.T())
-	r := shellSuite.Runner("../deployments-k8s/examples/use-cases/Memif2Memif")
+	r := s.shellSuite.Runner("../deployments-k8s/examples/use-cases/Memif2Memif")
 	s.T().Cleanup(func() {
 		r.Run(`kubectl delete ns ${NAMESPACE}`)
 	})

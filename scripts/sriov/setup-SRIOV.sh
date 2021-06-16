@@ -41,14 +41,14 @@ sleep 5
 
 for ip in ${master_ip} ${worker_ip}; do
   success_attempts=0
-  # ~20 minutes to start
-  for i in {1..400}; do
-    if [[ ${i} == 400 ]]; then
+  # ~15 minutes to start
+  for i in {1..60}; do
+    if [[ ${i} == 60 ]]; then
       echo "timeout waiting for the ${ip} to start, aborting..."
       exit 4
     fi
 
-    if ssh ${SSH_OPTS} root@${ip} -o ConnectTimeout=1 true; then
+    if ssh ${SSH_OPTS} -o ConnectTimeout=1 -o BatchMode=yes root@${ip} true; then
       ((success_attempts++))
     else
       success_attempts=0
@@ -58,7 +58,7 @@ for ip in ${master_ip} ${worker_ip}; do
       break
     fi
 
-    sleep 5
+    sleep 15
   done
 done
 

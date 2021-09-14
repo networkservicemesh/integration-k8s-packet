@@ -27,6 +27,12 @@ pids=""
 pids+=" $!"
 wait_pids "${pids}" "SR-IOV config failed" || exit 1
 
+# Setup SmartNIC
+pids=""
+/bin/bash scripts/smartnic/setup-SmartNIC.sh "${master_ip}" "${worker_ip}" "${SSH_OPTS}" &
+pids+=" $!"
+wait_pids "${pids}" "SmartNIC config failed" || exit 1
+
 # Create k8s scripts directory on nodes
 ssh ${SSH_OPTS} root@${master_ip} mkdir k8s
 ssh ${SSH_OPTS} root@${worker_ip} mkdir k8s

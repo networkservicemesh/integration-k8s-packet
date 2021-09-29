@@ -1,5 +1,7 @@
 // Copyright (c) 2020-2021 Doc.ai and/or its affiliates.
 //
+// Copyright (c) 2021 Nordix Foundation.
+//
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +26,7 @@ import (
 	"github.com/networkservicemesh/integration-tests/suites/heal"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
+	"github.com/networkservicemesh/integration-tests/suites/ovs"
 	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
@@ -33,6 +36,17 @@ func TestMemory(t *testing.T) {
 
 func TestSRIOV(t *testing.T) {
 	suite.Run(t, new(sriov.Suite))
+}
+
+func TestOVS(t *testing.T) {
+	ovsSuite := new(ovs.Suite)
+	ovsSuite.SetT(t)
+	// run only Kernel2Kernel test for now
+	ovsSuite.Run("TestKernel2Kernel", func() {
+		ovsSuite.SetupSuite()
+		defer ovsSuite.TearDownSuite()
+		ovsSuite.TestKernel2Kernel()
+	})
 }
 
 func TestMultiForwarder(t *testing.T) {

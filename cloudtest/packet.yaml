@@ -16,6 +16,7 @@ providers:
       - PACKET_AUTH_TOKEN
       - PACKET_PROJECT_ID
       - GITHUB_RUN_NUMBER
+      - KUBERNETES_VERSION
     packet:
       ssh-key: sshkey.pub   # A key name relative to $(tempdir) or absolute
       hardware-devices:

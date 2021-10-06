@@ -47,9 +47,9 @@ scp ${SSH_OPTS} scripts/k8s/install-kubernetes.sh root@${master_ip}:k8s/install-
 scp ${SSH_OPTS} scripts/k8s/install-kubernetes.sh root@${worker_ip}:k8s/install-kubernetes.sh || exit 6
 
 pids=""
-ssh ${SSH_OPTS} root@${master_ip} ./k8s/install-kubernetes.sh &
+ssh ${SSH_OPTS} root@${master_ip} ./k8s/install-kubernetes.sh ${KUBERNETES_VERSION} &
 pids+=" $!"
-ssh ${SSH_OPTS} root@${worker_ip} ./k8s/install-kubernetes.sh &
+ssh ${SSH_OPTS} root@${worker_ip} ./k8s/install-kubernetes.sh ${KUBERNETES_VERSION} &
 pids+=" $!"
 wait_pids "${pids}" "kubernetes install failed" || exit 7
 
@@ -59,7 +59,7 @@ scp ${SSH_OPTS} scripts/k8s/start-master.sh root@${master_ip}:k8s/start-master.s
 scp ${SSH_OPTS} scripts/k8s/download-worker-images.sh root@${worker_ip}:k8s/download-worker-images.sh || exit 9
 
 pids=""
-ssh ${SSH_OPTS} root@${master_ip} ./k8s/start-master.sh &
+ssh ${SSH_OPTS} root@${master_ip} ./k8s/start-master.sh ${KUBERNETES_VERSION} &
 pids+=" $!"
 ssh ${SSH_OPTS} root@${worker_ip} ./k8s/download-worker-images.sh &
 pids+=" $!"

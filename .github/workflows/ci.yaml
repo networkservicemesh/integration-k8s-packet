@@ -98,6 +98,7 @@ jobs:
         env:
           PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
           PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
+          KUBERNETES_VERSION: ${{ secrets.NSM_KUBERNETES_VERSION }}
       - name: Publish test report       # 7. Publish test report
         uses: mikepenz/action-junit-report@v2.1.0
         if: ${{ always() }}

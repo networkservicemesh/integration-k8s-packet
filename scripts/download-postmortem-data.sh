@@ -1,6 +1,8 @@
 #!/bin/bash -x
 # shellcheck disable=SC2086
 
+set -e
+
 master_ip=$1
 worker_ip=$2
 cluster_id=$3

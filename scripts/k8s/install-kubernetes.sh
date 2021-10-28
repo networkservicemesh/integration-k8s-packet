@@ -1,6 +1,8 @@
-#!/bin/sh
+#!/bin/bash -x
 
-KUBERNETES_VERSION="$1-00"
+set -e
+
+VERSION="${KUBERNETES_VERSION}-00"
 
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
@@ -9,7 +11,7 @@ EOF
 
 apt-get update
 apt-get install -y docker.io
-apt-get install -qy kubelet="${KUBERNETES_VERSION}" kubectl="${KUBERNETES_VERSION}" kubeadm="${KUBERNETES_VERSION}"
+apt-get install -qy kubelet="${VERSION}" kubectl="${VERSION}" kubeadm="${VERSION}"
 
 systemctl daemon-reload
 systemctl restart kubelet

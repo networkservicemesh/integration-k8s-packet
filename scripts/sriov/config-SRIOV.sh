@@ -1,5 +1,7 @@
-#!/bin/bash
+#!/bin/bash -x
 # shellcheck disable=SC2064,SC2129
+
+set -e
 
 CONFIG_DIRECTORY="/var/lib/networkservicemesh"
 CONFIG_FILE="${CONFIG_DIRECTORY}/sriov.config"

@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/bash -x
+
+set -e
 
 sed -Ei "s/(GRUB_CMDLINE_LINUX=.*)'/\1 intel_iommu=on'/" /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg

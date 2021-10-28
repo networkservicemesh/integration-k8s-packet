@@ -17,6 +17,7 @@
 package main_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -27,7 +28,14 @@ import (
 	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
+func isCalico() bool {
+	return os.Getenv("CALICO") != ""
+}
+
 func TestMemory(t *testing.T) {
+	if isCalico() {
+		t.Skip("not available with Calico")
+	}
 	suite.Run(t, new(memory.Suite))
 }
 
@@ -36,9 +44,15 @@ func TestSRIOV(t *testing.T) {
 }
 
 func TestMultiForwarder(t *testing.T) {
+	if isCalico() {
+		t.Skip("not available with Calico")
+	}
 	suite.Run(t, new(multiforwarder.Suite))
 }
 
 func TestHeal(t *testing.T) {
+	if isCalico() {
+		t.Skip("not available with Calico")
+	}
 	suite.Run(t, new(heal.Suite))
 }

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 # shellcheck disable=SC2002,SC2064
 
 device="/sys/class/net/$1/device"

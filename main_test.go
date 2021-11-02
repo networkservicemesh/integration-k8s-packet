@@ -22,6 +22,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/networkservicemesh/integration-tests/suites/basic"
+	"github.com/networkservicemesh/integration-tests/suites/features"
 	"github.com/networkservicemesh/integration-tests/suites/heal"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
@@ -30,7 +32,7 @@ import (
 )
 
 func isCalico() bool {
-	return os.Getenv("CALICO") != ""
+	return os.Getenv("CALICO") == "on"
 }
 
 func TestMemory(t *testing.T) {
@@ -60,4 +62,18 @@ func TestHeal(t *testing.T) {
 
 func TestRunObservabilitySuite(t *testing.T) {
 	suite.Run(t, new(observability.Suite))
+}
+
+func TestBasic(t *testing.T) {
+	if isCalico() {
+		t.Skip("not available with Calico")
+	}
+	suite.Run(t, new(basic.Suite))
+}
+
+func TestFeatures(t *testing.T) {
+	if isCalico() {
+		t.Skip("not available with Calico")
+	}
+	suite.Run(t, new(features.Suite))
 }

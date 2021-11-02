@@ -21,12 +21,12 @@ source scripts/include/wait-pids.sh
 # wait_start ip_1 ... ip_n
 source scripts/include/wait-start.sh
 
-wait_start ${master_ip} ${worker_ip}
-
 # 0. Setup SendEnv on the local side.
 cp /etc/ssh/ssh_config ${SSH_CONFIG} || exit 1
 echo "Host *
 	SendEnv ${ENVS}" >> ${SSH_CONFIG} || exit 2
+
+wait_start ${master_ip} ${worker_ip} || exit 3
 
 # 1. Setup AcceptEnv on the servers sides and wait for sshd to restart.
 scp ${SSH_OPTS} scripts/setup-sshd.sh root@${master_ip}:setup-sshd.sh || exit 11

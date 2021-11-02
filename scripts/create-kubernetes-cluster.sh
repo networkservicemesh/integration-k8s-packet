@@ -9,8 +9,12 @@ SSH_CONFIG="ssh_config"
 SSH_OPTS="-F ${SSH_CONFIG} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ${sshkey}"
 
 if [[ "$CALICO" == "on" ]]; then # calico
-  CALICO_MASTER_IP="10.0.0.$(( GITHUB_RUN_NUMBER % 100 ))"
-  CALICO_WORKER_IP="10.0.0.$(( GITHUB_RUN_NUMBER % 100 + 1 ))"
+  # Use a new 10.0.0.${base_ip}/30 subnet to prevent IP addresses collisions
+  # ${base_ip} should be <= 248, because 10.0.0.252/30 subnet is reserved for manual testing
+  base_ip=$(( GITHUB_RUN_NUMBER % 63 * 4 ))
+
+  CALICO_MASTER_IP="10.0.0.$(( base_ip + 1 ))"
+  CALICO_WORKER_IP="10.0.0.$(( base_ip + 2 ))"
   CALICO_SUBNET_MASK="30"
 fi
 

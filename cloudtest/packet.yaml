@@ -4,7 +4,7 @@ providers:
   - name: "packet"
     kind: "packet"
     instances: 1
-    retry: 0
+    retry: 5
     node-count: 2
     enabled: true
     timeout: 2400  # 40 minutes to start cluster

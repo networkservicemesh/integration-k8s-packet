@@ -27,7 +27,7 @@ ssh ${SSH_OPTS} root@${worker_ip} ./sriov/enable-SRIOV.sh &
 pids+=" $!"
 wait_pids "${pids}" "SR-IOV setup failed" || exit 3
 
-wait_start ${master_ip} ${worker_ip}
+wait_start ${master_ip} ${worker_ip} || exit 4
 
 # Create SR-IOV config
 scp ${SSH_OPTS} ${SRIOV_DIR}/config-SRIOV.sh root@${master_ip}:sriov/config-SRIOV.sh || exit 5

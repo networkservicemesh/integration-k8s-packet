@@ -68,6 +68,9 @@ jobs:
   packet:
     name: packet
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        calico: ["off", "on"]
     steps:
       - name: Set up /bin permissions   # 1. Set up /bin permissions
         run: |
@@ -87,32 +90,41 @@ jobs:
         with:
           repository: networkservicemesh/deployments-k8s
           path: networkservicemesh/deployments-k8s
-      - name: Checkout files            # 5. Checkout files
+      - name: Compute suffix            # 5. Compute suffix for cloudtest input and output paths
+        id: suffix
+        run: |
+          if [[ "${CALICO}" == "on" ]]; then
+            echo ::set-output name=val::_calico
+          fi
+        env:
+          CALICO: ${{ matrix.calico }}
+      - name: Checkout files            # 6. Checkout files
         uses: actions/checkout@v2
         with:
           path: ${{ github.repository }}
-      - name: Run tests with cloudtest  # 6. Run tests with cloudtest
+      - name: Run tests with cloudtest  # 7. Run tests with cloudtest
         working-directory: ${{ github.repository }}
         run: |
-          cloudtest
+          cloudtest --config=.cloudtest${suffix}.yaml
         env:
           PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
           PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
           KUBERNETES_VERSION: ${{ secrets.NSM_KUBERNETES_VERSION }}
-          CALICO: on
-      - name: Publish test report       # 7. Publish test report
+          CALICO: ${{ matrix.calico }}
+          suffix: ${{ steps.suffix.outputs.val }}
+      - name: Publish test report       # 8. Publish test report
         uses: mikepenz/action-junit-report@v2.1.0
         if: ${{ always() }}
         with:
-          report_paths: "**/cloud_test/results/junit.xml"
+          report_paths: "**/cloud_test${{ steps.suffix.outputs.val }}/results/junit.xml"
           suite_regex: "Test*"
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload logs               # 8. Upload logs
+      - name: Upload logs               # 9. Upload logs
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
           name: logs-${{ github.run_number }}
-          path: ${{ github.repository }}/.tests/cloud_test/
+          path: ${{ github.repository }}/.tests/cloud_test${{ steps.suffix.outputs.val }}/
 
   packet-cleanup:
     name: packet cleanup

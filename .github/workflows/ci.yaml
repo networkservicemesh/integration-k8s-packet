@@ -66,9 +66,10 @@ jobs:
           git diff --name-only --exit-code go.sum || ( echo "Run go tidy" && false )
 
   packet:
-    name: packet
+    name: packet (Calico ${{ matrix.calico }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         calico: ["off", "on"]
     steps:
@@ -119,12 +120,13 @@ jobs:
           report_paths: "**/cloud_test${{ steps.suffix.outputs.val }}/results/junit.xml"
           suite_regex: "Test*"
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          check_name: "JUnit Test Report (Calico ${{ matrix.calico }})"
       - name: Upload logs               # 9. Upload logs
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
           name: logs-${{ github.run_number }}
-          path: ${{ github.repository }}/.tests/cloud_test${{ steps.suffix.outputs.val }}/
+          path: ${{ github.repository }}/.tests/
 
   packet-cleanup:
     name: packet cleanup

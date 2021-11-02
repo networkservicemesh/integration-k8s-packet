@@ -8,7 +8,7 @@ calico_ip="$2"
 
 K8S_DIR=$(dirname "$0")
 
-if [[ -z "${CALICO}" ]]; then # not calico
+if [[ "$CALICO" != "on" ]]; then # not calico
   ip="${public_ip}"
 else
   ip="${calico_ip}"
@@ -24,13 +24,13 @@ mkdir -p ~/.kube
 cp -f /etc/kubernetes/admin.conf ~/.kube/config
 chown "$(id -u):$(id -g)" ~/.kube/config
 
-if [[ -z "${CALICO}" ]]; then # not calico
+if [[ "$CALICO" != "on" ]]; then # not calico
   kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE=192.168.0.0/16"
 fi
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
 
-if [[ -n "${CALICO}" ]]; then # calico
+if [[ "$CALICO" == "on" ]]; then # calico
   kubectl -n kube-system get configmap kubeadm-config -o jsonpath='{.data.ClusterConfiguration}' > kubeadm.yaml
   sed -i "/^apiServer:$/a \ \ certSANs:\n    - \"${public_ip}\"\n    - \"${calico_ip}\"" kubeadm.yaml
 

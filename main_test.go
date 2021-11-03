@@ -23,7 +23,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/networkservicemesh/integration-tests/suites/basic"
-	"github.com/networkservicemesh/integration-tests/suites/features"
 	"github.com/networkservicemesh/integration-tests/suites/heal"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
@@ -69,11 +68,4 @@ func TestBasic(t *testing.T) {
 		t.Skip("not available with Calico")
 	}
 	suite.Run(t, new(basic.Suite))
-}
-
-func TestFeatures(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
-	suite.Run(t, new(features.Suite))
 }

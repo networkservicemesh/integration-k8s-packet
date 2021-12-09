@@ -19,8 +19,10 @@
 package main_test
 
 import (
+	"flag"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/networkservicemesh/integration-tests/suites/heal"
@@ -39,14 +41,10 @@ func TestSRIOV(t *testing.T) {
 }
 
 func TestOVS(t *testing.T) {
-	ovsSuite := new(ovs.Suite)
-	ovsSuite.SetT(t)
-	// run only Kernel2Kernel test for now
-	ovsSuite.Run("TestKernel2Kernel", func() {
-		ovsSuite.SetupSuite()
-		defer ovsSuite.TearDownSuite()
-		ovsSuite.TestKernel2Kernel()
-	})
+	f := flag.Lookup("testify.m")
+	require.NoError(t, flag.Set("testify.m", "TestKernel2Kernel"))
+	defer func() { _ = flag.Set("testify.m", f.Value.String()) }()
+	suite.Run(t, new(ovs.Suite))
 }
 
 func TestMultiForwarder(t *testing.T) {

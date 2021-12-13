@@ -113,25 +113,25 @@ jobs:
           name: logs-${{ github.run_number }}
           path: ${{ github.repository }}/.tests/cloud_test/
 
-  packet-cleanup:
-    name: packet cleanup
-    runs-on: ubuntu-latest
-    needs:
-      - packet
-    if: ${{ always() }}
-    steps:
-      - name: Set up /bin permissions
-        run: |
-          sudo chmod -R 777 /bin
-      - uses: actions/setup-go@v1
-        with:
-          go-version: 1.16
-      - name: Clean up packet
-        run: |
-          go get github.com/networkservicemesh/cloudtest/pkg/providers/packet/packet_cleanup@master
-          packet_cleanup -k y -c y
-        env:
-          GO111MODULE: on
-          GOBIN: /bin
-          PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
-          PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
+  # packet-cleanup:
+  #   name: packet cleanup
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - packet
+  #   if: ${{ always() }}
+  #   steps:
+  #     - name: Set up /bin permissions
+  #       run: |
+  #         sudo chmod -R 777 /bin
+  #     - uses: actions/setup-go@v1
+  #       with:
+  #         go-version: 1.16
+  #     - name: Clean up packet
+  #       run: |
+  #         go get github.com/networkservicemesh/cloudtest/pkg/providers/packet/packet_cleanup@master
+  #         packet_cleanup -k y -c y
+  #       env:
+  #         GO111MODULE: on
+  #         GOBIN: /bin
+  #         PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
+  #         PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18

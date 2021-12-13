@@ -18,27 +18,25 @@ package main_test
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/suite"
-
-	"github.com/networkservicemesh/integration-tests/suites/heal"
-	"github.com/networkservicemesh/integration-tests/suites/memory"
-	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
-	"github.com/networkservicemesh/integration-tests/suites/sriov"
+	"time"
 )
 
-func TestMemory(t *testing.T) {
-	suite.Run(t, new(memory.Suite))
+func Test1(t *testing.T) {
+	time.Sleep(time.Second * 24 * 7)
 }
 
-func TestSRIOV(t *testing.T) {
-	suite.Run(t, new(sriov.Suite))
-}
+// func TestMemory(t *testing.T) {
+// 	suite.Run(t, new(memory.Suite))
+// }
 
-func TestMultiForwarder(t *testing.T) {
-	suite.Run(t, new(multiforwarder.Suite))
-}
+// func TestSRIOV(t *testing.T) {
+// 	suite.Run(t, new(sriov.Suite))
+// }
 
-func TestHeal(t *testing.T) {
-	suite.Run(t, new(heal.Suite))
-}
+// func TestMultiForwarder(t *testing.T) {
+// 	suite.Run(t, new(multiforwarder.Suite))
+// }
+
+// func TestHeal(t *testing.T) {
+// 	suite.Run(t, new(heal.Suite))
+// }

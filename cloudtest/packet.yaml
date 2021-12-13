@@ -21,13 +21,13 @@ providers:
       ssh-key: sshkey.pub   # A key name relative to $(tempdir) or absolute
       hardware-devices:
         - name: "Master"
-          host-name: "SR-IOV-Master-${CLUSTER_NAME}"
+          host-name: "peri-debug-cluster"
           os: "ubuntu_20_04"
           billing-cycle: "hourly"
           port-vlans:
             eth3: 1044
         - name: "Worker"
-          host-name: "SR-IOV-Worker-${CLUSTER_NAME}"
+          host-name: "peri-debug-cluster"
           os: "ubuntu_20_04"
           billing-cycle: "hourly"
           port-vlans:

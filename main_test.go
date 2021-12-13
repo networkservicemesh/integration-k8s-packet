@@ -22,7 +22,7 @@ import (
 )
 
 func Test1(t *testing.T) {
-	time.Sleep(time.Hour * 24 * 7)
+	time.Sleep(time.Second * 24 * 7)
 }
 
 // func TestMemory(t *testing.T) {

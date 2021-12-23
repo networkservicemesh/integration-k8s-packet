@@ -1,6 +1,7 @@
 #!/bin/bash -x
 # shellcheck disable=SC2086,SC2029
 
+echo "create-kubernetes-cluster.sh"
 master_ip=$1
 worker_ip=$2
 sshkey=$3
@@ -8,6 +9,7 @@ sshkey=$3
 SSH_CONFIG="ssh_config"
 SSH_OPTS="-F ${SSH_CONFIG} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ${sshkey}"
 
+echo "CALICO set to $CALICO"
 if [[ "$CALICO" == "on" ]]; then # calico
   # Use a new 10.0.0.${base_ip}/30 subnet to prevent IP addresses collisions
   # ${base_ip} should be <= 248, because 10.0.0.252/30 subnet is reserved for manual testing
@@ -26,6 +28,7 @@ source scripts/include/wait-pids.sh
 source scripts/include/wait-start.sh
 
 # 0. Setup SendEnv on the local side.
+echo "Setup SendEnv on the local side."
 cp /etc/ssh/ssh_config ${SSH_CONFIG} || exit 1
 echo "Host *
 	SendEnv ${ENVS}" >> ${SSH_CONFIG} || exit 2
@@ -33,6 +36,7 @@ echo "Host *
 wait_start ${master_ip} ${worker_ip} || exit 3
 
 # 1. Setup AcceptEnv on the servers sides and wait for sshd to restart.
+echo "Setup AcceptEnv on the servers sides and wait for sshd to restart"
 scp ${SSH_OPTS} scripts/setup-sshd.sh root@${master_ip}:setup-sshd.sh || exit 11
 scp ${SSH_OPTS} scripts/setup-sshd.sh root@${worker_ip}:setup-sshd.sh || exit 12
 

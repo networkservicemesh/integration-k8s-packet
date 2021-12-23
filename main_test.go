@@ -17,6 +17,7 @@
 package main_test
 
 import (
+	"github.com/networkservicemesh/integration-tests/suites/calico"
 	"os"
 	"testing"
 
@@ -41,6 +42,9 @@ func TestMemory(t *testing.T) {
 }
 
 func TestSRIOV(t *testing.T) {
+	if isCalico() {
+		t.Skip("not available with Calico")
+	}
 	suite.Run(t, new(sriov.Suite))
 }
 
@@ -63,4 +67,11 @@ func TestBasic(t *testing.T) {
 		t.Skip("not available with Calico")
 	}
 	suite.Run(t, new(basic.Suite))
+}
+
+func TestCalico(t *testing.T){
+	if !isCalico() {
+		t.Skip("Calico required")
+	}
+	suite.Run(t, new(calico.Suite))
 }

@@ -89,7 +89,8 @@ jobs:
       - name: Checkout deployments      # 4. Checkout deployments
         uses: actions/checkout@v2
         with:
-          repository: networkservicemesh/deployments-k8s
+          repository: Mixaster995/deployments-k8s
+          ref: 'main'
           path: networkservicemesh/deployments-k8s
       - name: Compute suffix            # 5. Compute suffix for cloudtest input and output paths
         id: suffix

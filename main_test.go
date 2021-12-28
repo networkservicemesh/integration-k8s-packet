@@ -35,43 +35,25 @@ func isCalico() bool {
 }
 
 func TestMemory(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
 	suite.Run(t, new(memory.Suite))
 }
 
 func TestSRIOV(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
 	suite.Run(t, new(sriov.Suite))
 }
 
 func TestMultiForwarder(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
 	suite.Run(t, new(multiforwarder.Suite))
 }
 
 func TestHeal(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
 	suite.Run(t, new(heal.Suite))
 }
 
 func TestBasic(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
 	suite.Run(t, new(basic.Suite))
 }
 
 func TestCalico(t *testing.T){
-	if !isCalico() {
-		t.Skip("Calico required")
-	}
 	suite.Run(t, new(calico.Suite))
 }

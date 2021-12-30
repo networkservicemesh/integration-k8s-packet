@@ -24,21 +24,19 @@ import (
 
 	"github.com/networkservicemesh/integration-tests/suites/basic"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
-	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
-	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
 func TestMemory(t *testing.T) {
 	suite.Run(t, new(memory.Suite))
 }
 
-func TestSRIOV(t *testing.T) {
-	suite.Run(t, new(sriov.Suite))
-}
-
-func TestMultiForwarder(t *testing.T) {
-	suite.Run(t, new(multiforwarder.Suite))
-}
+//func TestSRIOV(t *testing.T) {
+//	suite.Run(t, new(sriov.Suite))
+//}
+//
+//func TestMultiForwarder(t *testing.T) {
+//	suite.Run(t, new(multiforwarder.Suite))
+//}
 
 //func TestHeal(t *testing.T) {
 //	suite.Run(t, new(heal.Suite))

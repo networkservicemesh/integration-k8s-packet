@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021 Doc.ai and/or its affiliates.
+// Copyright (c) 2020-2022 Doc.ai and/or its affiliates.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -22,7 +22,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/networkservicemesh/integration-tests/suites/basic"
+	"github.com/networkservicemesh/integration-tests/suites/calico"
 	"github.com/networkservicemesh/integration-tests/suites/heal"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
@@ -41,6 +41,9 @@ func TestMemory(t *testing.T) {
 }
 
 func TestSRIOV(t *testing.T) {
+	if isCalico() {
+		t.Skip("not available with Calico")
+	}
 	suite.Run(t, new(sriov.Suite))
 }
 
@@ -58,9 +61,9 @@ func TestHeal(t *testing.T) {
 	suite.Run(t, new(heal.Suite))
 }
 
-func TestBasic(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
+func TestCalico(t *testing.T) {
+	if !isCalico() {
+		t.Skip("not available without Calico")
 	}
-	suite.Run(t, new(basic.Suite))
+	suite.Run(t, new(calico.Suite))
 }

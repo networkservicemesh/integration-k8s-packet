@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021 Doc.ai and/or its affiliates.
+// Copyright (c) 2020-2022 Doc.ai and/or its affiliates.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -24,6 +24,7 @@ import (
 	"github.com/networkservicemesh/integration-tests/suites/heal"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
+	"github.com/networkservicemesh/integration-tests/suites/observability"
 	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
@@ -41,4 +42,8 @@ func TestMultiForwarder(t *testing.T) {
 
 func TestHeal(t *testing.T) {
 	suite.Run(t, new(heal.Suite))
+}
+
+func TestRunObservabilitySuite(t *testing.T) {
+	suite.Run(t, new(observability.Suite))
 }

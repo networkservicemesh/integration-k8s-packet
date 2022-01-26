@@ -15,7 +15,8 @@ if [[ "$CALICO" == "on" ]]; then # calico
 
   CALICO_MASTER_IP="10.0.0.$(( base_ip + 1 ))"
   CALICO_WORKER_IP="10.0.0.$(( base_ip + 2 ))"
-  CALICO_SUBNET_MASK="30"
+  CALICO_CIDR_PREFIX="30"
+  CALICO_INTERFACE="eno2"
 fi
 
 ENVS="KUBERNETES_VERSION CALICO"
@@ -53,24 +54,24 @@ wait_pids "${pids}" "SR-IOV config failed" || exit 21
 
 if [[ "$CALICO" == "on" ]]; then # calico
   # 3. Create Calico scripts directory on nodes.
-  ssh ${SSH_OPTS} root@${master_ip} mkdir calico || exit 31
-  ssh ${SSH_OPTS} root@${worker_ip} mkdir calico || exit 32
+  ssh ${SSH_OPTS} root@${master_ip} mkdir -p calico || exit 31
+  ssh ${SSH_OPTS} root@${worker_ip} mkdir -p calico || exit 32
 
   # 4. Setup Calico interfaces.
   scp ${SSH_OPTS} scripts/calico/setup-interfaces.sh root@${master_ip}:calico/setup-interfaces.sh || exit 41
   scp ${SSH_OPTS} scripts/calico/setup-interfaces.sh root@${worker_ip}:calico/setup-interfaces.sh || exit 42
 
   pids=""
-  ssh ${SSH_OPTS} root@${master_ip} ./calico/setup-interfaces.sh "${CALICO_MASTER_IP}/${CALICO_SUBNET_MASK}" &
+  ssh ${SSH_OPTS} root@${master_ip} ./calico/setup-interfaces.sh "${CALICO_INTERFACE}" "${CALICO_MASTER_IP}" "${CALICO_CIDR_PREFIX}" &
   pids+=" $!"
-  ssh ${SSH_OPTS} root@${worker_ip} ./calico/setup-interfaces.sh "${CALICO_WORKER_IP}/${CALICO_SUBNET_MASK}" &
+  ssh ${SSH_OPTS} root@${worker_ip} ./calico/setup-interfaces.sh "${CALICO_INTERFACE}" "${CALICO_WORKER_IP}" "${CALICO_CIDR_PREFIX}" &
   pids+=" $!"
   wait_pids "${pids}" "setup Calico interfaces failed" || exit 43
 fi
 
 # 5. Create k8s scripts directory on nodes.
-ssh ${SSH_OPTS} root@${master_ip} mkdir k8s || exit 51
-ssh ${SSH_OPTS} root@${worker_ip} mkdir k8s || exit 52
+ssh ${SSH_OPTS} root@${master_ip} mkdir -p k8s || exit 51
+ssh ${SSH_OPTS} root@${worker_ip} mkdir -p k8s || exit 52
 
 # 6. Config docker.
 scp ${SSH_OPTS} scripts/k8s/config-docker.sh root@${master_ip}:k8s/config-docker.sh || exit 61

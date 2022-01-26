@@ -1,4 +1,4 @@
-module github.com/networkservicemesh/integratiohuhgyn-k8s-packet
+module github.com/networkservicemesh/integration-k8s-packet
 
 go 1.16
 

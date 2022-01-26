@@ -17,12 +17,10 @@
 package main_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/networkservicemesh/integration-tests/suites/calico"
 	"github.com/networkservicemesh/integration-tests/suites/heal"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
@@ -30,52 +28,22 @@ import (
 	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
-func isCalico() bool {
-	return os.Getenv("CALICO") == "on"
-}
-
 func TestMemory(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
 	suite.Run(t, new(memory.Suite))
 }
 
 func TestSRIOV(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
 	suite.Run(t, new(sriov.Suite))
 }
 
 func TestMultiForwarder(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
 	suite.Run(t, new(multiforwarder.Suite))
 }
 
 func TestHeal(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
 	suite.Run(t, new(heal.Suite))
 }
 
 func TestRunObservabilitySuite(t *testing.T) {
 	suite.Run(t, new(observability.Suite))
-}
-
-func TestBasic(t *testing.T) {
-	if isCalico() {
-		t.Skip("not available with Calico")
-	}
-	suite.Run(t, new(basic.Suite))
-}
-
-func TestCalico(t *testing.T) {
-	if !isCalico() {
-		t.Skip("not available without Calico")
-	}
-	suite.Run(t, new(calico.Suite))
 }

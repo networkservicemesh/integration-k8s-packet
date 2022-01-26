@@ -83,7 +83,6 @@ jobs:
       - name: Install cloudtest         # 3. Install cloudtest
         run: |
           go get github.com/networkservicemesh/cloudtest@master
-#          GOPROXY=direct go get github.com/Mixaster995/cloudtest@no-cleanup
         env:
           GO111MODULE: on
           GOBIN: /bin

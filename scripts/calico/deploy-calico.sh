@@ -6,7 +6,8 @@ function on_error() {
 }
 trap 'on_error' ERR
 
+kubectl apply -f https://projectcalico.docs.tigera.io/v3.22/manifests/tigera-operator.yaml
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/vpp-dataplane/master/yaml/calico/installation-default.yaml
 kubectl apply -k scripts/calico
 
-kubectl -n calico-vpp-dataplane rollout status daemonset/calico-vpp-node --timeout=5m
-kubectl -n kube-system rollout status deployment/calico-kube-controllers --timeout=5m
+kubectl rollout status -n calico-vpp-dataplane ds/calico-vpp-node --timeout=10m

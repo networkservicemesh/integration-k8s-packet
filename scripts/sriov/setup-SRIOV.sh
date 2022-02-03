@@ -63,6 +63,9 @@ for ip in ${master_ip} ${worker_ip}; do
 done
 
 # Create SR-IOV config
+ssh ${SSH_OPTS} root@${master_ip} ifenslave -d bond0 eno4
+ssh ${SSH_OPTS} root@${worker_ip} ifenslave -d bond0 eno4
+
 scp ${SSH_OPTS} ${SRIOV_DIR}/config-SRIOV.sh root@${master_ip}:sriov/config-SRIOV.sh || exit 5
 scp ${SSH_OPTS} ${SRIOV_DIR}/config-SRIOV.sh root@${worker_ip}:sriov/config-SRIOV.sh || exit 6
 

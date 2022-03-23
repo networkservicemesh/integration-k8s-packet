@@ -66,12 +66,12 @@ jobs:
           git diff --name-only --exit-code go.sum || ( echo "Run go tidy" && false )
 
   packet:
-    name: packet (Calico ${{ matrix.calico }})
+    name: packet (CNI ${{ matrix.CNI }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        calico: ["off", "on"]
+        CNI: ["default", "calico"]
     steps:
       - name: Set up /bin permissions   # 1. Set up /bin permissions
         run: |
@@ -94,11 +94,11 @@ jobs:
       - name: Compute suffix            # 5. Compute suffix for cloudtest input and output paths
         id: suffix
         run: |
-          if [[ "${CALICO}" == "on" ]]; then
+          if [[ "${CNI}" == "calico" ]]; then
             echo ::set-output name=val::_calico
           fi
         env:
-          CALICO: ${{ matrix.calico }}
+          CNI: ${{ matrix.CNI }}
       - name: Checkout files            # 6. Checkout files
         uses: actions/checkout@v2
         with:
@@ -111,7 +111,7 @@ jobs:
           PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
           PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
           KUBERNETES_VERSION: ${{ secrets.NSM_KUBERNETES_VERSION }}
-          CALICO: ${{ matrix.calico }}
+          CNI: ${{ matrix.CNI }}
           suffix: ${{ steps.suffix.outputs.val }}
       - name: Publish test report       # 8. Publish test report
         uses: mikepenz/action-junit-report@v2.1.0
@@ -120,7 +120,7 @@ jobs:
           report_paths: "**/cloud_test${{ steps.suffix.outputs.val }}/results/junit.xml"
           suite_regex: "Test*"
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          check_name: "JUnit Test Report (Calico ${{ matrix.calico }})"
+          check_name: "JUnit Test Report (CNI ${{ matrix.CNI }})"
       - name: Upload logs               # 9. Upload logs
         uses: actions/upload-artifact@v2
         if: ${{ always() }}

@@ -8,7 +8,7 @@ sshkey=$3
 SSH_CONFIG="ssh_config"
 SSH_OPTS="-F ${SSH_CONFIG} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ${sshkey}"
 
-if [[ "$CALICO" == "on" ]]; then # calico
+if [[ "$CNI" == "calico" ]]; then # calico
   # Use a new 10.0.0.${base_ip}/30 subnet to prevent IP addresses collisions
   # ${base_ip} should be <= 248, because 10.0.0.252/30 subnet is reserved for manual testing
   base_ip=$(( GITHUB_RUN_NUMBER % 63 * 4 ))
@@ -19,7 +19,7 @@ if [[ "$CALICO" == "on" ]]; then # calico
   CALICO_INTERFACE="eno2"
 fi
 
-ENVS="KUBERNETES_VERSION CALICO"
+ENVS="KUBERNETES_VERSION CNI"
 
 # wait_pids pid_1 ... pid_n
 source scripts/include/wait-pids.sh
@@ -52,7 +52,7 @@ pids=""
 pids+=" $!"
 wait_pids "${pids}" "SR-IOV config failed" || exit 21
 
-if [[ "$CALICO" == "on" ]]; then # calico
+if [[ "$CNI" == "calico" ]]; then # calico
   # 3. Create Calico scripts directory on nodes.
   ssh ${SSH_OPTS} root@${master_ip} mkdir -p calico || exit 31
   ssh ${SSH_OPTS} root@${worker_ip} mkdir -p calico || exit 32
@@ -123,7 +123,7 @@ wait_pids "${pids}" "worker join failed" || exit 94
 # 10. Save KUBECONFIG to file.
 scp ${SSH_OPTS} root@${master_ip}:.kube/config ${KUBECONFIG} || exit 101
 
-if [[ "$CALICO" == "on" ]]; then # calico
+if [[ "$CNI" == "calico" ]]; then # calico
   # 11. Setup cluster nodes IPs.
   scp ${SSH_OPTS} scripts/calico/setup-node-ip.sh root@${master_ip}:calico/setup-node-ip.sh || exit 111
   scp ${SSH_OPTS} scripts/calico/setup-node-ip.sh root@${worker_ip}:calico/setup-node-ip.sh || exit 112

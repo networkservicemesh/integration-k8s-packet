@@ -25,13 +25,15 @@ providers:
           os: "ubuntu_20_04"
           billing-cycle: "hourly"
           port-vlans:
-            eth3: 1044
+            eth1: 3000  # calico VLAN
+            eth3: 1044  # SR-IOV VLAN
         - name: "Worker"
           host-name: "SR-IOV-Worker-${CLUSTER_NAME}"
           os: "ubuntu_20_04"
           billing-cycle: "hourly"
           port-vlans:
-            eth3: 1044
+            eth1: 3000  # calico VLAN
+            eth3: 1044  # SR-IOV VLAN
       hardware-reservations:
         - 2cf78481-53b0-46c8-a084-6e9815acdb0b
         - 2361d3c2-f694-4fa7-a683-a9f69e2abe7c

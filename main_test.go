@@ -17,6 +17,8 @@
 package main_test
 
 import (
+	"flag"
+	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -33,10 +35,16 @@ func TestMemory(t *testing.T) {
 }
 
 func TestSRIOV(t *testing.T) {
+	f := flag.Lookup("gotestmd.t")
+	require.NoError(t, flag.Set("gotestmd.t", "10m"))
+	defer func() { _ = flag.Set("gotestmd.t", f.Value.String()) }()
 	suite.Run(t, new(sriov.Suite))
 }
 
 func TestMultiForwarder(t *testing.T) {
+	f := flag.Lookup("gotestmd.t")
+	require.NoError(t, flag.Set("gotestmd.t", "10m"))
+	defer func() { _ = flag.Set("gotestmd.t", f.Value.String()) }()
 	suite.Run(t, new(multiforwarder.Suite))
 }
 

@@ -75,7 +75,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        CNI: ["default", "calico"]
+        CNI: ["calico"]
     steps:
       - name: Set up /bin permissions   # 1. Set up /bin permissions
         run: |

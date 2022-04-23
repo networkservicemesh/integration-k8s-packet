@@ -37,11 +37,11 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.16
+          go-version: 1.18
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.35
+          version: v1.45.2
 
   excludeFmtErrorf:
     name: exclude fmt.Errorf
@@ -62,7 +62,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v1
         with:
-          go-version: 1.16
+          go-version: 1.18
       - run: go mod tidy
       - name: Check for changes in go.mod or go.sum
         run: |
@@ -83,7 +83,7 @@ jobs:
       - name: Set up go                 # 2. Set up go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.16
+          go-version: 1.18
       - name: Install cloudtest         # 3. Install cloudtest
         run: |
           go get github.com/networkservicemesh/cloudtest@master
@@ -144,7 +144,7 @@ jobs:
           sudo chmod -R 777 /bin
       - uses: actions/setup-go@v1
         with:
-          go-version: 1.16
+          go-version: 1.18
       - name: Clean up packet
         run: |
           go get github.com/networkservicemesh/cloudtest/pkg/providers/packet/packet_cleanup@master

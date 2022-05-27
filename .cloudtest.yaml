@@ -8,7 +8,7 @@ statistics:
   interval: 60  # 60 seconds for statistics
 import:
   - cloudtest/packet.yaml
-  - cloudtest/tests.yaml
+  - cloudtest/tests_default.yaml
 
 retest:  # Allow to do test re-run if some kind of failures are detected.
   count: 2  # Allow 2 times to do restart

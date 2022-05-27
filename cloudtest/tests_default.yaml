@@ -3,7 +3,7 @@ executions:
   - name: "tests"
     env:
       - ARTIFACTS_ARCHIVE=true
-    root: ./
+    root: ./tests_default/
     timeout: 3600
     cluster-count: 1
     cluster-selector:

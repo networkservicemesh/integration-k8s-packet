@@ -21,12 +21,12 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/networkservicemesh/integration-tests/suites/features"
-	"github.com/networkservicemesh/integration-tests/suites/heal"
-	"github.com/networkservicemesh/integration-tests/suites/memory"
-	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
-	"github.com/networkservicemesh/integration-tests/suites/observability"
-	"github.com/networkservicemesh/integration-tests/suites/sriov"
+	"github.com/ljkiraly/integration-tests/suites/features"
+	"github.com/ljkiraly/integration-tests/suites/heal"
+	"github.com/ljkiraly/integration-tests/suites/memory"
+	"github.com/ljkiraly/integration-tests/suites/multiforwarder"
+	"github.com/ljkiraly/integration-tests/suites/observability"
+	"github.com/ljkiraly/integration-tests/suites/sriov"
 )
 
 func TestMemory(t *testing.T) {

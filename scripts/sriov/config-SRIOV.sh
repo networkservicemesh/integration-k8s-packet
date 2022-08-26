@@ -31,8 +31,19 @@ function config_link() {
 
   trap "echo 0 > '${device}/sriov_numvfs'" err exit
   echo 1 > "${device}/sriov_numvfs" || return 1
-  vf_kernel_driver="$(softlink_target "${device}/virtfn0/driver")"
-  test $? -eq 0 || return 1
+
+  retry=0
+  while [ ${retry} -lt 3 ]; do
+    echo 1 > "${device}/sriov_numvfs" || return 1
+    numfs=$(head -n 1 "${device}/sriov_numvfs")
+    if [ "$numfs" = "1" ]; then
+      vf_kernel_driver="$(softlink_target "${device}/virtfn0/driver")"
+      break
+    else
+      (( retry = retry + 1 ))
+      sleep 1
+    fi
+  done
 
   echo "  ${pci_addr}:" >> "${CONFIG_FILE}"
   echo "    pfKernelDriver: ${pf_kernel_driver}" >> "${CONFIG_FILE}"

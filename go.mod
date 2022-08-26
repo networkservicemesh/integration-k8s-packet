@@ -8,3 +8,5 @@ require (
 	github.com/stretchr/testify v1.7.0
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+replace github.com/networkservicemesh/integration-tests => github.com/glazychev-art/integration-tests v0.0.0-20220830044614-f0212b73fb20

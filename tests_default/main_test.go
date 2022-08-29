@@ -21,34 +21,9 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/networkservicemesh/integration-tests/suites/features"
-	"github.com/networkservicemesh/integration-tests/suites/heal"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
-	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
-	"github.com/networkservicemesh/integration-tests/suites/observability"
-	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
 func TestMemory(t *testing.T) {
 	suite.Run(t, new(memory.Suite))
-}
-
-func TestSRIOV(t *testing.T) {
-	suite.Run(t, new(sriov.Suite))
-}
-
-func TestMultiForwarder(t *testing.T) {
-	suite.Run(t, new(multiforwarder.Suite))
-}
-
-func TestHeal(t *testing.T) {
-	suite.Run(t, new(heal.Suite))
-}
-
-func TestRunObservabilitySuite(t *testing.T) {
-	suite.Run(t, new(observability.Suite))
-}
-
-func TestFeatureSuite(t *testing.T) {
-	suite.Run(t, new(features.Suite))
 }

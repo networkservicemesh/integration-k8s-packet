@@ -17,14 +17,16 @@
 package main_test
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/suite"
+
 	"github.com/networkservicemesh/integration-tests/suites/features"
 	"github.com/networkservicemesh/integration-tests/suites/heal"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
 	"github.com/networkservicemesh/integration-tests/suites/observability"
 	"github.com/networkservicemesh/integration-tests/suites/sriov"
-	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 func TestMemory(t *testing.T) {

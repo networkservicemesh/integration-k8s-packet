@@ -10,6 +10,10 @@ bond1_id=$(metal device get -i "${device_id}" -o json | jq -r ' .network_ports[]
 eth3_id=$(metal device get -i "${device_id}" -o json | jq -r ' .network_ports[] | select(.name=="eth3") | .id')
 
 # Unbond bond1
-yes | metal port convert -i "${bond1_id}" --layer2 --bonded=false
+bonded=$(metal port get -i "${bond1_id}" -o json | jq -r '.data.bonded')
+if [[ "$bonded" == "true" ]]; then
+  yes | metal port convert -i "${bond1_id}" --layer2 --bonded=false
+  echo "bond1 was unbonded"
+fi
 # Set VLAN for eth3
 metal port vlans -i "${eth3_id}" -a 1044

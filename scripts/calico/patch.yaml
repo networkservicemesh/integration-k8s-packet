@@ -5,4 +5,4 @@ metadata:
   name: calico-vpp-config
   namespace: calico-vpp-dataplane
 data:
-  vpp_dataplane_interface: eno2
+  vpp_dataplane_interface: ens6f1

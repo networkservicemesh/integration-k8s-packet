@@ -5,6 +5,11 @@ on:
   push:
     branches:
       - 'release/**'
+
+concurrency:
+  group: '${{ github.event.pull_request.number }}'
+  cancel-in-progress: true
+
 jobs:
   yamllint:
     name: yamllint
@@ -77,85 +82,115 @@ jobs:
       matrix:
         CNI: ["default", "calico"]
     steps:
-      - name: Set up /bin permissions   # 1. Set up /bin permissions
+      - name: Set up /bin permissions
         run: |
           sudo chmod -R 777 /bin
-      - name: Set up go                 # 2. Set up go
+      - name: Set envs
+        run: |
+          id=${{ matrix.CNI }}-${{ github.run_number }}
+          echo CLUSTER_NAME=nsm-ci-${id} >> $GITHUB_ENV
+          echo SSH_KEY=nsm-ssh-${id} >> $GITHUB_ENV
+      - name: Set up go
         uses: actions/setup-go@v1
         with:
           go-version: 1.16
-      - name: Install cloudtest         # 3. Install cloudtest
+      - name: Checkout files
+        uses: actions/checkout@v2
+        with:
+          path: ${{ github.repository }}
+
+      - name: Install kind
+        uses: engineerd/setup-kind@v0.5.0
+        with:
+          config: ${{ github.repository }}/kind-cluster-config.yaml
+          version: v0.14.0
+          image: kindest/node:v1.24.0
+
+      - name: Check kind
         run: |
-          go get github.com/networkservicemesh/cloudtest@master
-        env:
-          GO111MODULE: on
-          GOBIN: /bin
-      - name: Checkout deployments      # 4. Checkout deployments
+          kubectl version
+          kubectl get pods -n kube-system
+
+      - name: Install clusterctl
+        run: |
+          curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.2.1/clusterctl-linux-amd64 -o clusterctl
+          chmod +x ./clusterctl
+          mv ./clusterctl /usr/local/bin/clusterctl
+          clusterctl version
+
+      - name: Install metal CLI
+        run: |
+          curl -L https://github.com/equinix/metal-cli/releases/download/v0.9.0/metal-linux-amd64 -o metal
+          chmod +x ./metal
+          mv ./metal /usr/local/bin/metal
+          metal -v
+
+      - name: Checkout deployments
         uses: actions/checkout@v2
         with:
           repository: networkservicemesh/deployments-k8s
           path: networkservicemesh/deployments-k8s
-      - name: Compute suffix            # 5. Compute suffix for cloudtest input and output paths
-        id: suffix
-        run: |
-          if [[ "${CNI}" == "calico" ]]; then
-            echo ::set-output name=val::_calico
-          fi
-        env:
-          CNI: ${{ matrix.CNI }}
-      - name: Checkout files            # 6. Checkout files
-        uses: actions/checkout@v2
-        with:
-          path: ${{ github.repository }}
-      - name: Run tests with cloudtest  # 7. Run tests with cloudtest
+
+      - name: Setup ssh
         working-directory: ${{ github.repository }}
+        id: setup_ssh
         run: |
-          if [[ "${CNI}" == "calico" ]]; then
-            cloudtest --config=.cloudtest${suffix}.yaml || true
-          else
-            cloudtest --config=.cloudtest${suffix}.yaml
-          fi
+          ssh-keygen -t rsa -f /tmp/sshkey -q -N ""
+          eval `ssh-agent -s`
+          ssh-add /tmp/sshkey
+          ssh_id=$(metal ssh-key create --key "$(cat /tmp/sshkey.pub)" --label ${SSH_KEY} -o json | jq -r '.id')
+          echo ::set-output name=ssh_id::${ssh_id}
         env:
-          PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
-          PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
+          METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
+
+      - name: Setup cluster
+        uses: nick-fields/retry@v2.8.1
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command: |
+            cd ${{ github.repository }}
+            scripts/setup-cluster.sh "/tmp/sshkey"
+          on_retry_command: |
+            cd ${{ github.repository }}
+            scripts/cleanup-cluster.sh ${CLUSTER_NAME}
+        env:
+          PACKET_API_KEY: ${{ secrets.PACKET_AUTH_TOKEN }}
+          METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
+          FACILITY: da11
+          NODE_OS: ubuntu_20_04
           KUBERNETES_VERSION: ${{ secrets.NSM_KUBERNETES_VERSION }}
           CNI: ${{ matrix.CNI }}
-          suffix: ${{ steps.suffix.outputs.val }}
-      - name: Publish test report       # 8. Publish test report
-        uses: mikepenz/action-junit-report@v3.0.1
-        if: ${{ always() }}
-        with:
-          report_paths: "**/cloud_test${{ steps.suffix.outputs.val }}/results/junit.xml"
-          suite_regex: "Test*"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          check_name: "JUnit Test Report (CNI ${{ matrix.CNI }})"
-          annotate_only: true
-      - name: Upload logs               # 9. Upload logs
+          CONTROLPLANE_NODE_TYPE: "n3.xlarge.x86"
+          WORKER_NODE_TYPE: "n3.xlarge.x86"
+
+      - name: Integration tests
+        run: |
+          export KUBECONFIG=$HOME/.kube/config_packet
+          if [[ "${{ matrix.CNI }}" == "calico" ]]; then
+            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }} || true
+          else
+            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }}
+          fi
+        env:
+          ARTIFACTS_DIR: logs
+        working-directory: ${{ github.repository }}
+
+      - name: Upload logs
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
-          name: logs-${{ github.run_number }}
-          path: ${{ github.repository }}/.tests/
+          name: ${{ matrix.CNI }}-logs
+          path: ${{ github.repository }}/tests_${{ matrix.CNI }}/logs
 
-  packet-cleanup:
-    name: packet cleanup
-    runs-on: ubuntu-latest
-    needs:
-      - packet
-    if: ${{ always() }}
-    steps:
-      - name: Set up /bin permissions
+      - name: Cleanup
+        if: ${{ always() }}
+        working-directory: ${{ github.repository }}
         run: |
-          sudo chmod -R 777 /bin
-      - uses: actions/setup-go@v1
-        with:
-          go-version: 1.16
-      - name: Clean up packet
-        run: |
-          go get github.com/networkservicemesh/cloudtest/pkg/providers/packet/packet_cleanup@master
-          packet_cleanup -k y -c y
+          export KUBECONFIG=$HOME/.kube/config
+          scripts/cleanup-cluster.sh ${{ steps.setup_ssh.outputs.ssh_id }}
         env:
-          GO111MODULE: on
-          GOBIN: /bin
-          PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
-          PACKET_PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
+          PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
+          METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}

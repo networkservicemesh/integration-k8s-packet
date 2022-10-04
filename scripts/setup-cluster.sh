@@ -6,7 +6,7 @@ sshkey=$1
 SSH_OPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ${sshkey}"
 export SRIOV_INTERFACE="ens6f3"
 
-if [[ "$CNI" == "calico" ]]; then # calico
+if [[ "$CNI" == "calico-vpp" ]]; then # calico
   # Use a new 10.0.0.${base_ip}/30 subnet to prevent IP addresses collisions
   # ${base_ip} should be <= 248, because 10.0.0.252/30 subnet is reserved for manual testing
   base_ip=$(( GITHUB_RUN_NUMBER % 63 * 4 ))
@@ -32,7 +32,7 @@ clusterctl generate cluster ${CLUSTER_NAME}  \
 
 # If CNI is Calico, we need to make a few corrections to the generated template
 sed -r -i 's/(cloud-provider-equinix-metal\/releases\/download\/v[0-9.]*\/)/cloud-provider-equinix-metal\/releases\/download\/v3.5.0\//g' packet.yaml
-if [[ "$CNI" == "calico" ]]; then # calico
+if [[ "$CNI" == "calico-vpp" ]]; then # calico
   sed -i "/^    initConfiguration:/a \      localAPIEndpoint:\n        advertiseAddress: ${CALICO_MASTER_IP}" packet.yaml
   sed -i "/^    preKubeadmCommands:/a \    - ifenslave -d bond0 ${CALICO_INTERFACE}\n    - ip addr change ${CALICO_MASTER_IP}/${CALICO_CIDR_PREFIX} dev ${CALICO_INTERFACE}\n    - ip link set up dev ${CALICO_INTERFACE}" packet.yaml
   sed -i "/^      preKubeadmCommands:/a \      - ifenslave -d bond0 ${CALICO_INTERFACE}\n      - ip addr change ${CALICO_WORKER_IP}/${CALICO_CIDR_PREFIX} dev ${CALICO_INTERFACE}\n      - ip link set up dev ${CALICO_INTERFACE}" packet.yaml
@@ -75,17 +75,17 @@ mapfile -t wr_ips < <(kubectl get packetmachine "${worker_node}" --template '{{r
 worker_ip=${wr_ips[0]}
 
 ## Do a preset in the case of calico (basically setting up interfaces)
-if [[ "$CNI" == "calico" ]]; then
+if [[ "$CNI" == "calico-vpp" ]]; then
   /bin/bash scripts/calico/setup-calico.sh "${master_node}" "${master_ip}" "${worker_node}" "${worker_ip}" "${SSH_OPTS}" || exit 10
 fi
 
 ## Waiting for two nodes (control-plane and worker), because the kubernetes installation takes place in the background
-for i in {1..20}; do
+for i in {1..30}; do
   nodes_count=$(kubectl --kubeconfig=$KUBECONFIG_PACK get nodes --no-headers | wc -l)
   if [ $nodes_count -eq 2 ]; then
     break
   fi
-  if [[ ${i} == 20 ]]; then
+  if [[ ${i} == 30 ]]; then
     echo "node count timeout exceeded. exit"
     exit 11
   fi
@@ -96,9 +96,9 @@ done
 /bin/bash scripts/sriov/setup-SRIOV.sh "${master_node}" "${master_ip}" "${worker_node}" "${worker_ip}" "${SSH_OPTS}" || exit 12
 
 ## CNI installation
-if [[ "$CNI" == "default" ]]; then # use weave CNI in case of default
-  kubectl --kubeconfig=$KUBECONFIG_PACK apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE=192.168.0.0/16" || exit 13
-elif [[ "$CNI" == "calico" ]]; then # calico-VPP CNI
+if [[ "$CNI" == "default" ]]; then # use calico CNI in case of default
+  kubectl --kubeconfig=$KUBECONFIG_PACK apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.1/manifests/calico.yaml || exit 13
+elif [[ "$CNI" == "calico-vpp" ]]; then # calico-VPP CNI
   export KUBECONFIG=$KUBECONFIG_PACK
   /bin/bash scripts/calico/deploy-calico.sh || exit 14
 fi

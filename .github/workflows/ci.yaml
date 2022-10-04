@@ -7,7 +7,7 @@ on:
       - 'release/**'
 
 concurrency:
-  group: '${{ github.event.pull_request.number }}'
+  group: '${{ github.ref_name }}'
   cancel-in-progress: true
 
 jobs:
@@ -80,7 +80,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        CNI: ["default", "calico"]
+        CNI: ["default", "calico-vpp"]
     steps:
       - name: Set up /bin permissions
         run: |
@@ -169,7 +169,7 @@ jobs:
       - name: Integration tests
         run: |
           export KUBECONFIG=$HOME/.kube/config_packet
-          if [[ "${{ matrix.CNI }}" == "calico" ]]; then
+          if [[ "${{ matrix.CNI }}" == "calico-vpp" ]]; then
             go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }} || true
           else
             go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }}

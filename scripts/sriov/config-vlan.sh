@@ -3,6 +3,7 @@
 
 project_id=$1
 node_name=$2
+vlan=$3
 
 # Get IDs
 device_id=$(metal device get -p "${project_id}" -o json --filter hostname="${node_name}" | jq -r '.[0].id')
@@ -16,4 +17,4 @@ if [[ "$bonded" == "true" ]]; then
   echo "bond1 was unbonded"
 fi
 # Set VLAN for eth3
-metal port vlans -i "${eth3_id}" -a 1044
+metal port vlans -i "${eth3_id}" -a "${vlan}"

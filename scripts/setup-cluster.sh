@@ -5,6 +5,7 @@ sshkey=$1
 
 SSH_OPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ${sshkey}"
 export SRIOV_INTERFACE="ens6f3"
+sriov_vlan="1044"
 
 if [[ "$CNI" == "calico-vpp" ]]; then # calico
   # Use a new 10.0.0.${base_ip}/30 subnet to prevent IP addresses collisions
@@ -15,6 +16,7 @@ if [[ "$CNI" == "calico-vpp" ]]; then # calico
   export CALICO_WORKER_IP="10.0.0.$(( base_ip + 2 ))"
   export CALICO_CIDR_PREFIX="30"
   export CALICO_INTERFACE="ens6f1"
+  sriov_vlan="1045"
 fi
 
 # wait_pids pid_1 ... pid_n
@@ -93,7 +95,7 @@ for i in {1..30}; do
 done
 
 ## Setup SR-IOV
-/bin/bash scripts/sriov/setup-SRIOV.sh "${master_node}" "${master_ip}" "${worker_node}" "${worker_ip}" "${SSH_OPTS}" || exit 12
+/bin/bash scripts/sriov/setup-SRIOV.sh "${master_node}" "${master_ip}" "${worker_node}" "${worker_ip}" "${sriov_vlan}" "${SSH_OPTS}" || exit 12
 
 ## CNI installation
 if [[ "$CNI" == "default" ]]; then # use calico CNI in case of default

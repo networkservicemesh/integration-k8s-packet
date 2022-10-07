@@ -7,7 +7,9 @@ master_ip="$2"
 worker_node="$3"
 worker_ip="$4"
 
-SSH_OPTS="$5"
+sriov_vlan="$5"
+
+SSH_OPTS="$6"
 
 SRIOV_DIR=$(dirname "$0")
 
@@ -18,9 +20,9 @@ source scripts/include/wait-start.sh
 
 # Setup target SRIOV VLAN
 pids=""
-/bin/bash scripts/sriov/config-vlan.sh "${PROJECT_ID}" "${master_node}" &
+/bin/bash scripts/sriov/config-vlan.sh "${PROJECT_ID}" "${master_node}" "${sriov_vlan}" &
 pids+=" $!"
-/bin/bash scripts/sriov/config-vlan.sh "${PROJECT_ID}" "${worker_node}" &
+/bin/bash scripts/sriov/config-vlan.sh "${PROJECT_ID}" "${worker_node}" "${sriov_vlan}" &
 pids+=" $!"
 wait_pids "${pids}" "setup SRIOV interfaces failed" || exit 21
 

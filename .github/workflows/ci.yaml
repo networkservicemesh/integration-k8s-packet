@@ -80,7 +80,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        CNI: ["default", "calico-vpp"]
+        CNI: ["calico-vpp"]
     steps:
       - name: Set up /bin permissions
         run: |

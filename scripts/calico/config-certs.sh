@@ -8,3 +8,4 @@ sed -i "/^apiServer:$/a \ \ certSANs:\n    - \"${calico_ip}\"" kubeadm.yaml
 
 rm /etc/kubernetes/pki/apiserver.{crt,key}
 kubeadm init phase certs apiserver --config kubeadm.yaml
+kubeadm init phase upload-config kubeadm --config kubeadm.yaml

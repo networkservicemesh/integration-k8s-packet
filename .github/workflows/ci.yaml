@@ -91,7 +91,7 @@ jobs:
           eval `ssh-agent -s`
           ssh-add /tmp/sshkey
           ssh_id=$(metal ssh-key create --key "$(cat /tmp/sshkey.pub)" --label ${SSH_KEY} -o json | jq -r '.id')
-          echo ::set-output name=ssh_id::${ssh_id}
+          echo 'ssh_id=${ssh_id}' >> $GITHUB_OUTPUT
         env:
           METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
 

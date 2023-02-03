@@ -35,8 +35,7 @@ function config_link() {
   retry=0
   while [ ${retry} -lt 3 ]; do
     echo 1 > "${device}/sriov_numvfs" || return 1
-    numfs=$(head -n 1 "${device}/sriov_numvfs")
-    if [ "$numfs" = "1" ]; then
+    if lspci | grep -q "Virtual Function" ; then
       vf_kernel_driver="$(softlink_target "${device}/virtfn0/driver")"
       break
     else

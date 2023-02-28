@@ -25,7 +25,7 @@ source scripts/include/wait-pids.sh
 source scripts/include/wait-start.sh
 
 ## Run clusterctl
-clusterctl init --infrastructure packet || exit 1
+clusterctl init --infrastructure packet:v0.6.2 || exit 1
 clusterctl generate cluster ${CLUSTER_NAME}  \
   --kubernetes-version ${KUBERNETES_VERSION} \
   --control-plane-machine-count=1            \
@@ -33,7 +33,6 @@ clusterctl generate cluster ${CLUSTER_NAME}  \
   > packet.yaml || exit 2
 
 # If CNI is Calico, we need to make a few corrections to the generated template
-sed -r -i 's/(cloud-provider-equinix-metal\/releases\/download\/v[0-9.]*\/)/cloud-provider-equinix-metal\/releases\/download\/v3.5.0\//g' packet.yaml
 if [[ "$CNI" == "calico-vpp" ]]; then # calico
   sed -i "/^    initConfiguration:/a \      localAPIEndpoint:\n        advertiseAddress: ${CALICO_MASTER_IP}" packet.yaml
   sed -i "/^    preKubeadmCommands:/a \    - ifenslave -d bond0 ${CALICO_INTERFACE}\n    - ip addr change ${CALICO_MASTER_IP}/${CALICO_CIDR_PREFIX} dev ${CALICO_INTERFACE}\n    - ip link set up dev ${CALICO_INTERFACE}" packet.yaml
@@ -91,7 +90,7 @@ for i in {1..30}; do
     echo "node count timeout exceeded. exit"
     exit 11
   fi
-  sleep 10s
+  sleep 20s
 done
 
 ## Setup SR-IOV
@@ -99,7 +98,7 @@ done
 
 ## CNI installation
 if [[ "$CNI" == "default" ]]; then # use calico CNI in case of default
-  kubectl --kubeconfig=$KUBECONFIG_PACK apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.1/manifests/calico.yaml || exit 13
+  kubectl --kubeconfig=$KUBECONFIG_PACK apply -k scripts/defaultCNI || exit 13
 elif [[ "$CNI" == "calico-vpp" ]]; then # calico-VPP CNI
   export KUBECONFIG=$KUBECONFIG_PACK
   /bin/bash scripts/calico/deploy-calico.sh || exit 14

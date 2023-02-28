@@ -65,14 +65,14 @@ jobs:
 
       - name: Install clusterctl
         run: |
-          curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.2.1/clusterctl-linux-amd64 -o clusterctl
+          curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.3.3/clusterctl-linux-amd64 -o clusterctl
           chmod +x ./clusterctl
           mv ./clusterctl /usr/local/bin/clusterctl
           clusterctl version
 
       - name: Install metal CLI
         run: |
-          curl -L https://github.com/equinix/metal-cli/releases/download/v0.9.0/metal-linux-amd64 -o metal
+          curl -L https://github.com/equinix/metal-cli/releases/download/v0.13.0/metal-linux-amd64 -o metal
           chmod +x ./metal
           mv ./metal /usr/local/bin/metal
           metal -v
@@ -96,22 +96,22 @@ jobs:
           METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
 
       - name: Setup cluster
-        uses: nick-fields/retry@v2.8.1
+        uses: nick-fields/retry@v2.8.3
         with:
-          timeout_minutes: 30
+          timeout_minutes: 50
           max_attempts: 3
           command: |
             cd ${{ github.repository }}
             scripts/setup-cluster.sh "/tmp/sshkey"
           on_retry_command: |
             cd ${{ github.repository }}
-            scripts/cleanup-cluster.sh ${CLUSTER_NAME}
+            scripts/cleanup-cluster.sh
         env:
           PACKET_API_KEY: ${{ secrets.PACKET_AUTH_TOKEN }}
           METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
-          FACILITY: da11
+          FACILITY: ch3
           NODE_OS: ubuntu_20_04
           KUBERNETES_VERSION: ${{ secrets.NSM_KUBERNETES_VERSION }}
           CNI: ${{ matrix.CNI }}
@@ -142,7 +142,8 @@ jobs:
         working-directory: ${{ github.repository }}
         run: |
           export KUBECONFIG=$HOME/.kube/config
-          scripts/cleanup-cluster.sh ${{ steps.setup_ssh.outputs.ssh_id }}
+          yes | metal ssh-key delete --id "${{ steps.setup_ssh.outputs.ssh_id }}"
+          scripts/cleanup-cluster.sh
         env:
           PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
           METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}

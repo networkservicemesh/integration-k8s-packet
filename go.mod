@@ -3,9 +3,11 @@ module github.com/networkservicemesh/integration-k8s-packet
 go 1.18
 
 require (
-	github.com/networkservicemesh/integration-tests v0.0.0-20230228205411-f56298d42d4f
+	github.com/networkservicemesh/integration-tests v0.0.0-20230320095119-1ac25b6fc01b
 	github.com/stretchr/testify v1.7.0
 )
+
+replace github.com/networkservicemesh/integration-tests => github.com/glazychev-art/integration-tests v0.0.0-20230322062433-74ec18fd4744
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

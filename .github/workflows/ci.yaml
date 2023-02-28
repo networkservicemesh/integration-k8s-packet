@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        CNI: ["default", "calico-vpp"]
+        CNI: ["default"]
     steps:
       - name: Set up /bin permissions
         run: |
@@ -80,8 +80,9 @@ jobs:
       - name: Checkout deployments
         uses: actions/checkout@v2
         with:
-          repository: networkservicemesh/deployments-k8s
+          repository: glazychev-art/deployments-k8s
           path: networkservicemesh/deployments-k8s
+          ref: "packet_test"
 
       - name: Setup ssh
         working-directory: ${{ github.repository }}

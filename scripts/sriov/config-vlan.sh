@@ -4,10 +4,7 @@
 project_id=$1
 node_name=$2
 vlan=$3
-
-# We have to set one more, base VLAN due to Equinix Metal cluster specifics
-# See: https://deploy.equinix.com/developers/docs/metal/layer2-networking/layer2-mode/#attaching-multiple-vlans-unbonded
-vlan_base=10
+enable8021q=$4
 
 # Get IDs
 device_id=$(metal device get -p "${project_id}" -o json --filter hostname="${node_name}" | jq -r '.[0].id')
@@ -23,4 +20,9 @@ fi
 
 # Set VLANs for eth3
 metal port vlans -i "${eth3_id}" -a "${vlan}"
-metal port vlans -i "${eth3_id}" -a "${vlan_base}"
+
+# We have to set one more, "base" VLAN due to Equinix Metal cluster specifics
+# See: https://deploy.equinix.com/developers/docs/metal/layer2-networking/layer2-mode/#attaching-multiple-vlans-unbonded
+if [[ "$enable8021q" == "true" ]]; then
+  metal port vlans -i "${eth3_id}" -a 10
+fi

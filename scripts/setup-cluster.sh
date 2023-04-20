@@ -16,7 +16,6 @@ if [[ "$CNI" == "calico-vpp" ]]; then # calico
   export CALICO_WORKER_IP="10.0.0.$(( base_ip + 2 ))"
   export CALICO_CIDR_PREFIX="30"
   export CALICO_INTERFACE="ens6f1"
-  sriov_vlan="1045"
 fi
 
 # wait_pids pid_1 ... pid_n

@@ -5,6 +5,10 @@ project_id=$1
 node_name=$2
 vlan=$3
 
+# We have to set one more, base VLAN due to Equinix Metal cluster specifics
+# See: https://deploy.equinix.com/developers/docs/metal/layer2-networking/layer2-mode/#attaching-multiple-vlans-unbonded
+vlan_base=10
+
 # Get IDs
 device_id=$(metal device get -p "${project_id}" -o json --filter hostname="${node_name}" | jq -r '.[0].id')
 bond1_id=$(metal device get -i "${device_id}" -o json | jq -r ' .network_ports[] | select(.name=="bond1") | .id')
@@ -16,5 +20,7 @@ if [[ "$bonded" == "true" ]]; then
   yes | metal port convert -i "${bond1_id}" --layer2 --bonded=false
   echo "bond1 was unbonded"
 fi
-# Set VLAN for eth3
+
+# Set VLANs for eth3
 metal port vlans -i "${eth3_id}" -a "${vlan}"
+metal port vlans -i "${eth3_id}" -a "${vlan_base}"

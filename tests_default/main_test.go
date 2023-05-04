@@ -1,5 +1,7 @@
 // Copyright (c) 2020-2022 Doc.ai and/or its affiliates.
 //
+// Copyright (c) 2023 Cisco and/or its affiliates.
+//
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,21 +26,21 @@ import (
 	"github.com/networkservicemesh/integration-tests/suites/features"
 	"github.com/networkservicemesh/integration-tests/suites/heal"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
-	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
+	"github.com/networkservicemesh/integration-tests/suites/multiforwarder_vlantag"
 	"github.com/networkservicemesh/integration-tests/suites/observability"
-	"github.com/networkservicemesh/integration-tests/suites/sriov"
+	"github.com/networkservicemesh/integration-tests/suites/sriov_vlantag"
 )
 
 func TestMemory(t *testing.T) {
 	suite.Run(t, new(memory.Suite))
 }
 
-func TestSRIOV(t *testing.T) {
-	suite.Run(t, new(sriov.Suite))
+func TestSRIOV_VlanTag(t *testing.T) {
+	suite.Run(t, new(sriov_vlantag.Suite))
 }
 
-func TestMultiForwarder(t *testing.T) {
-	suite.Run(t, new(multiforwarder.Suite))
+func TestMultiForwarder_VlanTag(t *testing.T) {
+	suite.Run(t, new(multiforwarder_vlantag.Suite))
 }
 
 func TestHeal(t *testing.T) {

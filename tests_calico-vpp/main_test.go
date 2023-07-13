@@ -1,5 +1,7 @@
 // Copyright (c) 2020-2022 Doc.ai and/or its affiliates.
 //
+// Copyright (c) 2023 Cisco and/or its affiliates.
+//
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +61,6 @@ func (s *featuresSuite) BeforeTest(suiteName, testName string) {
 	if testName == "TestMutually_aware_nses" {
 		s.T().Skip()
 	}
-	s.Suite.BeforeTest(suiteName, testName)
 }
 
 func TestRunFeatureSuiteCalico(t *testing.T) {

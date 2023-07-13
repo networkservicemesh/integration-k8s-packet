@@ -59,7 +59,6 @@ func (s *featuresSuite) BeforeTest(suiteName, testName string) {
 	if testName == "TestMutually_aware_nses" {
 		s.T().Skip()
 	}
-	s.Suite.BeforeTest(suiteName, testName)
 }
 
 func TestRunFeatureSuiteCalico(t *testing.T) {

@@ -111,7 +111,7 @@ jobs:
           METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
-          METRO: ch
+          METRO: ny
           NODE_OS: ubuntu_20_04
           KUBERNETES_VERSION: ${{ secrets.NSM_KUBERNETES_VERSION }}
           CNI: ${{ matrix.CNI }}

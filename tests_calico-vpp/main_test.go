@@ -23,6 +23,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/networkservicemesh/integration-tests/extensions/parallel"
 	"github.com/networkservicemesh/integration-tests/suites/features"
 	"github.com/networkservicemesh/integration-tests/suites/heal"
 	"github.com/networkservicemesh/integration-tests/suites/memory"
@@ -32,15 +33,15 @@ import (
 )
 
 func TestMemory(t *testing.T) {
-	suite.Run(t, new(memory.Suite))
+	parallel.Run(t, new(memory.Suite))
 }
 
 func TestSRIOV(t *testing.T) {
-	suite.Run(t, new(sriov.Suite))
+	parallel.Run(t, new(sriov.Suite))
 }
 
 func TestMultiForwarder(t *testing.T) {
-	suite.Run(t, new(multiforwarder.Suite))
+	parallel.Run(t, new(multiforwarder.Suite))
 }
 
 func TestHeal(t *testing.T) {
@@ -64,5 +65,5 @@ func (s *featuresSuite) BeforeTest(suiteName, testName string) {
 }
 
 func TestRunFeatureSuiteCalico(t *testing.T) {
-	suite.Run(t, new(featuresSuite))
+	parallel.Run(t, new(featuresSuite))
 }

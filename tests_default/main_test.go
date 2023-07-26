@@ -41,7 +41,7 @@ func TestSRIOV_VlanTag(t *testing.T) {
 }
 
 func TestMultiForwarder_VlanTag(t *testing.T) {
-	parallel.Run(t, new(multiforwarder_vlantag.Suite))
+	parallel.Run(t, new(multiforwarder_vlantag.Suite), "TestKernel2ethernet2kernel_vfio2noopvlantag", "TestKernel2kernel_vfio2noopvlantag")
 }
 
 func TestHeal(t *testing.T) {

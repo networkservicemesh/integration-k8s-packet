@@ -40,6 +40,11 @@ jobs:
       - name: Set envs
         run: |
           id=${{ matrix.CNI }}-${{ github.run_number }}
+          echo METRO=ny >> $GITHUB_ENV
+          if [[ "${{ matrix.CNI }}" == "calico-vpp" ]]; then
+            id=calico-${{ github.run_number }}
+            echo METRO=ch >> $GITHUB_ENV
+          fi
           echo CLUSTER_NAME=nsm-ci-${id} >> $GITHUB_ENV
           echo SSH_KEY=nsm-ssh-${id} >> $GITHUB_ENV
       - name: Set up go
@@ -55,8 +60,8 @@ jobs:
         uses: engineerd/setup-kind@v0.5.0
         with:
           config: ${{ github.repository }}/kind-cluster-config.yaml
-          version: v0.14.0
-          image: kindest/node:v1.24.0
+          version: v0.20.0
+          image: kindest/node:v1.28.0
 
       - name: Check kind
         run: |
@@ -65,14 +70,14 @@ jobs:
 
       - name: Install clusterctl
         run: |
-          curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.3.3/clusterctl-linux-amd64 -o clusterctl
+          curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.5.2/clusterctl-linux-amd64 -o clusterctl
           chmod +x ./clusterctl
           mv ./clusterctl /usr/local/bin/clusterctl
           clusterctl version
 
       - name: Install metal CLI
         run: |
-          curl -L https://github.com/equinix/metal-cli/releases/download/v0.13.0/metal-linux-amd64 -o metal
+          curl -L https://github.com/equinix/metal-cli/releases/download/v0.16.0/metal-linux-amd64 -o metal
           chmod +x ./metal
           mv ./metal /usr/local/bin/metal
           metal -v
@@ -107,13 +112,13 @@ jobs:
             cd ${{ github.repository }}
             scripts/cleanup-cluster.sh
         env:
+          # METRO env was set above
           PACKET_API_KEY: ${{ secrets.PACKET_AUTH_TOKEN }}
           METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
-          METRO: ny
           NODE_OS: ubuntu_20_04
-          KUBERNETES_VERSION: ${{ secrets.NSM_KUBERNETES_VERSION }}
+          KUBERNETES_VERSION: "v1.27.1"
           CNI: ${{ matrix.CNI }}
           CONTROLPLANE_NODE_TYPE: "n3.xlarge.x86"
           WORKER_NODE_TYPE: "n3.xlarge.x86"

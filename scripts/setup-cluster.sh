@@ -98,14 +98,16 @@ done
 ## Setup SR-IOV
 /bin/bash scripts/sriov/setup-SRIOV.sh "${master_node}" "${master_ip}" "${worker_node}" "${worker_ip}" "${sriov_vlan}" "${enable8021q}" "${SSH_OPTS}" || exit 12
 
+## Remove master label from the control-plane node to be able to use it as worker node
+# For some versions of kubernetes you need to use node-role.kubernetes.io/master-
+kubectl --kubeconfig=$KUBECONFIG_PACK taint nodes --selector='node-role.kubernetes.io/control-plane' node-role.kubernetes.io/control-plane:NoSchedule- || exit 13
+
 ## CNI installation
 if [[ "$CNI" == "default" ]]; then # use calico CNI in case of default
-  kubectl --kubeconfig=$KUBECONFIG_PACK apply -k scripts/defaultCNI || exit 13
+  kubectl --kubeconfig=$KUBECONFIG_PACK apply -k scripts/defaultCNI || exit 14
 elif [[ "$CNI" == "calico-vpp" ]]; then # calico-VPP CNI
   export KUBECONFIG=$KUBECONFIG_PACK
-  /bin/bash scripts/calico/deploy-calico.sh || exit 14
+  /bin/bash scripts/calico/deploy-calico.sh || exit 15
 fi
 
-## Remove master label from the control-plane node to be able to use it as worker node
-# For some versions of kubernetes you need to use node-role.kubernetes.io/control-plane-
-kubectl --kubeconfig=$KUBECONFIG_PACK taint nodes --selector='node-role.kubernetes.io/master' node-role.kubernetes.io/master- || exit 15
+kubectl --kubeconfig=$KUBECONFIG_PACK get pods -A

@@ -37,11 +37,11 @@ func TestMemory(t *testing.T) {
 }
 
 func TestSRIOV(t *testing.T) {
-	parallel.Run(t, new(sriov.Suite))
+	suite.Run(t, new(sriov.Suite))
 }
 
 func TestMultiForwarder(t *testing.T) {
-	parallel.Run(t, new(multiforwarder.Suite))
+	suite.Run(t, new(multiforwarder.Suite))
 }
 
 func TestHeal(t *testing.T) {

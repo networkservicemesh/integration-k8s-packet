@@ -37,11 +37,11 @@ func TestMemory(t *testing.T) {
 }
 
 func TestSRIOV_VlanTag(t *testing.T) {
-	parallel.Run(t, new(sriov_vlantag.Suite))
+	suite.Run(t, new(sriov_vlantag.Suite))
 }
 
 func TestMultiForwarder_VlanTag(t *testing.T) {
-	parallel.Run(t, new(multiforwarder_vlantag.Suite), "TestKernel2ethernet2kernel_vfio2noopvlantag", "TestKernel2kernel_vfio2noopvlantag")
+	suite.Run(t, new(multiforwarder_vlantag.Suite))
 }
 
 func TestHeal(t *testing.T) {

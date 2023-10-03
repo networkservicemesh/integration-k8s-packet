@@ -43,7 +43,7 @@ jobs:
           echo METRO=ny >> $GITHUB_ENV
           if [[ "${{ matrix.CNI }}" == "calico-vpp" ]]; then
             id=calico-${{ github.run_number }}
-            echo METRO=ch >> $GITHUB_ENV
+            echo METRO=at >> $GITHUB_ENV
           fi
           echo CLUSTER_NAME=nsm-ci-${id} >> $GITHUB_ENV
           echo SSH_KEY=nsm-ssh-${id} >> $GITHUB_ENV

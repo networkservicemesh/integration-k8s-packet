@@ -65,5 +65,5 @@ func (s *featuresSuite) BeforeTest(suiteName, testName string) {
 }
 
 func TestRunFeatureSuiteCalico(t *testing.T) {
-	parallel.Run(t, new(featuresSuite))
+	parallel.Run(t, new(featuresSuite), "TestVl3_basic", "TestVl3_dns", "TestScale_from_zero")
 }

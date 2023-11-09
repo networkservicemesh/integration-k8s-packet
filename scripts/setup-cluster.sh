@@ -110,4 +110,8 @@ elif [[ "$CNI" == "calico-vpp" ]]; then # calico-VPP CNI
   /bin/bash scripts/calico/deploy-calico.sh || exit 15
 fi
 
+## SPIRE server requires StorageClass
+kubectl --kubeconfig=$KUBECONFIG_PACK apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.24/deploy/local-path-storage.yaml
+kubectl --kubeconfig=$KUBECONFIG_PACK patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
 kubectl --kubeconfig=$KUBECONFIG_PACK get pods -A

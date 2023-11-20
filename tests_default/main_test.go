@@ -53,5 +53,5 @@ func TestRunObservabilitySuite(t *testing.T) {
 }
 
 func TestFeatureSuite(t *testing.T) {
-	parallel.Run(t, new(features.Suite))
+	parallel.Run(t, new(features.Suite), "TestVl3_basic", "TestVl3_dns", "TestScale_from_zero", "TestVl3_scale_from_zero")
 }

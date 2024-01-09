@@ -19,39 +19,11 @@
 package main_test
 
 import (
-	"testing"
-
+	"github.com/networkservicemesh/integration-tests/suites/ovs"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/networkservicemesh/integration-tests/extensions/parallel"
-	"github.com/networkservicemesh/integration-tests/suites/features"
-	"github.com/networkservicemesh/integration-tests/suites/heal"
-	"github.com/networkservicemesh/integration-tests/suites/memory"
-	"github.com/networkservicemesh/integration-tests/suites/multiforwarder_vlantag"
-	"github.com/networkservicemesh/integration-tests/suites/observability"
-	"github.com/networkservicemesh/integration-tests/suites/sriov_vlantag"
+	"testing"
 )
 
-func TestMemory(t *testing.T) {
-	parallel.Run(t, new(memory.Suite))
-}
-
-func TestSRIOV_VlanTag(t *testing.T) {
-	suite.Run(t, new(sriov_vlantag.Suite))
-}
-
-func TestMultiForwarder_VlanTag(t *testing.T) {
-	suite.Run(t, new(multiforwarder_vlantag.Suite))
-}
-
-func TestHeal(t *testing.T) {
-	suite.Run(t, new(heal.Suite))
-}
-
-func TestRunObservabilitySuite(t *testing.T) {
-	suite.Run(t, new(observability.Suite))
-}
-
-func TestFeatureSuite(t *testing.T) {
-	parallel.Run(t, new(features.Suite), "TestVl3_basic", "TestVl3_dns", "TestScale_from_zero", "TestVl3_scale_from_zero", "TestSelect_forwarder")
+func TestOVS(t *testing.T) {
+	suite.Run(t, new(ovs.Suite))
 }

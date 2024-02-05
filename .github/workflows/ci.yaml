@@ -116,7 +116,7 @@ jobs:
         with:
           config: ${{ github.repository }}/kind-cluster-config.yaml
           version: v0.20.0
-          node_image: kindest/node:v1.28.0
+          image: kindest/node:${{ secrets.NSM_KUBERNETES_VERSION }}
 
       - name: Check kind
         run: |
@@ -160,10 +160,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
           NODE_OS: ubuntu_20_04
-          KUBERNETES_VERSION: "v1.27.1"
           CNI: ${{ matrix.config.CNI }}
           CONTROLPLANE_NODE_TYPE: ${{ matrix.config.node_type }}
           WORKER_NODE_TYPE: ${{ matrix.config.node_type }}
+          KUBERNETES_VERSION: ${{ secrets.NSM_KUBERNETES_VERSION }}
 
       - name: Integration tests
         run: |

@@ -116,7 +116,7 @@ jobs:
         with:
           config: ${{ github.repository }}/kind-cluster-config.yaml
           version: v0.20.0
-          image: kindest/node:${{ secrets.NSM_KUBERNETES_VERSION }}
+          image: kindest/node:${{ vars.NSM_KUBERNETES_VERSION }}
 
       - name: Check kind
         run: |

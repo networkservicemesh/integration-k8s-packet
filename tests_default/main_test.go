@@ -2,6 +2,8 @@
 //
 // Copyright (c) 2023 Cisco and/or its affiliates.
 //
+// Copyright (c) 2024 Nordix and/or its affiliates.
+//
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +21,10 @@
 package main_test
 
 import (
+	"flag"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/networkservicemesh/integration-tests/extensions/parallel"
@@ -29,6 +33,7 @@ import (
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder_vlantag"
 	"github.com/networkservicemesh/integration-tests/suites/observability"
+	"github.com/networkservicemesh/integration-tests/suites/ovs"
 	"github.com/networkservicemesh/integration-tests/suites/sriov_vlantag"
 )
 
@@ -54,4 +59,11 @@ func TestRunObservabilitySuite(t *testing.T) {
 
 func TestFeatureSuite(t *testing.T) {
 	parallel.Run(t, new(features.Suite), "TestVl3_basic", "TestVl3_dns", "TestScale_from_zero", "TestVl3_scale_from_zero", "TestSelect_forwarder")
+}
+
+func TestRunOVS(t *testing.T) {
+	f := flag.Lookup("testify.m")
+	require.NoError(t, flag.Set("testify.m", "TestKernel2Kernel"))
+	defer func() { _ = flag.Set("testify.m", f.Value.String()) }()
+	suite.Run(t, new(ovs.Suite))
 }

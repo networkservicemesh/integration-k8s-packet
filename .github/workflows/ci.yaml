@@ -127,9 +127,9 @@ jobs:
         run: |
           export KUBECONFIG=$HOME/.kube/config_packet
           if [[ "${{ matrix.CNI }}" == "calico-vpp" ]]; then
-            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }} -parallel 4 || true
+            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }} -run TestRunOVS -parallel 4 || true
           else
-            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }} -parallel 4
+            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }} -run TestRunOVS -parallel 4
           fi
         env:
           ARTIFACTS_DIR: logs

@@ -21,10 +21,8 @@
 package main_test
 
 import (
-	"flag"
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/networkservicemesh/integration-tests/extensions/parallel"
@@ -61,9 +59,18 @@ func TestFeatureSuite(t *testing.T) {
 	parallel.Run(t, new(features.Suite), "TestVl3_basic", "TestVl3_dns", "TestScale_from_zero", "TestVl3_scale_from_zero", "TestSelect_forwarder")
 }
 
+type ovsSuite struct {
+	ovs.Suite
+}
+
+func (s *ovsSuite) BeforeTest(suiteName, testName string) {
+	switch testName {
+	case
+		"TestSmartVF2SmartVF",
+		"TestKernel2KernelVLAN":
+		s.T().Skip()
+	}
+}
 func TestRunOVS(t *testing.T) {
-	f := flag.Lookup("testify.m")
-	require.NoError(t, flag.Set("testify.m", "TestKernel2Kernel"))
-	defer func() { _ = flag.Set("testify.m", f.Value.String()) }()
-	suite.Run(t, new(ovs.Suite))
+	suite.Run(t, new(ovsSuite))
 }

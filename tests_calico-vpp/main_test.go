@@ -76,10 +76,7 @@ type ovsSuite struct {
 }
 
 func (s *ovsSuite) BeforeTest(suiteName, testName string) {
-	switch testName {
-	case
-		"TestSmartVF2SmartVF",
-		"TestKernel2KernelVLAN":
+	if testName == "TestKernel2KernelVLAN" {
 		s.T().Skip()
 	}
 }

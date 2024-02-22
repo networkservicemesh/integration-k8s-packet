@@ -101,11 +101,9 @@ done
 ## Setup ovs
 /bin/bash scripts/ovs/setup-ovs.sh "${master_ip}" "${worker_ip}" "${SSH_OPTS}" || exit 13
 
-## Setup SmartNIC
+## Setup ovs
 if [[ "$CNI" == "calico-vpp" ]]; then # calico
   /bin/bash scripts/smartnic/setup-SmartNIC.sh "${master_ip}" "${worker_ip}" "${SSH_OPTS}" "${CALICO_INTERFACE}" || exit 14
-else
-  /bin/bash scripts/smartnic/setup-SmartNIC.sh "${master_ip}" "${worker_ip}" "${SSH_OPTS}" "${SRIOV_INTERFACE}" || exit 14
 fi
 
 ## Remove master label from the control-plane node to be able to use it as worker node

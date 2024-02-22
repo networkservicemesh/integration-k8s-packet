@@ -43,13 +43,6 @@ wait_pids "${pids}" "SmartNIC setup failed" || exit 3
 
 sleep 5
 
-# Create SmartNIC config
-scp ${SSH_OPTS} ${SMARTNIC_DIR}/config-SmartNIC.sh root@${master_ip}:smartnic/config-SmartNIC.sh || exit 4
-scp ${SSH_OPTS} ${SMARTNIC_DIR}/config-SmartNIC.sh root@${worker_ip}:smartnic/config-SmartNIC.sh || exit 5
-
-pids=""
-ssh ${SSH_OPTS} root@${master_ip} ./smartnic/config-SmartNIC.sh ${snic}=worker.domain &
-pids+=" $!"
-ssh ${SSH_OPTS} root@${worker_ip} ./smartnic/config-SmartNIC.sh ${snic}=worker.domain &
-pids+=" $!"
-wait_pids "${pids}" "NSM SmartNIC config failed" || exit 6
+# Copy SRIOV config as SmartNIC config
+ssh ${SSH_OPTS} root@${master_ip} cp /var/lib/networkservicemesh/sriov.config /var/lib/networkservicemesh/smartnic.config
+ssh ${SSH_OPTS} root@${worker_ip} cp /var/lib/networkservicemesh/sriov.config /var/lib/networkservicemesh/smartnic.config

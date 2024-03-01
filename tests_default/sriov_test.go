@@ -1,6 +1,4 @@
-// Copyright (c) 2020-2022 Doc.ai and/or its affiliates.
-//
-// Copyright (c) 2023-2024 Cisco and/or its affiliates.
+// Copyright (c) 2024 Cisco and/or its affiliates.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -21,20 +19,16 @@ package main_test
 import (
 	"testing"
 
-	"github.com/networkservicemesh/integration-tests/extensions/parallel"
-	"github.com/networkservicemesh/integration-tests/suites/basic"
-	"github.com/networkservicemesh/integration-tests/suites/ipsec_mechanism"
-	"github.com/networkservicemesh/integration-tests/suites/memory"
+	"github.com/stretchr/testify/suite"
+
+	"github.com/networkservicemesh/integration-tests/suites/multiforwarder_vlantag"
+	"github.com/networkservicemesh/integration-tests/suites/sriov_vlantag"
 )
 
-func TestBasic(t *testing.T) {
-	parallel.Run(t, new(basic.Suite))
+func TestSRIOV_VlanTag(t *testing.T) {
+	suite.Run(t, new(sriov_vlantag.Suite))
 }
 
-func TestMemory(t *testing.T) {
-	parallel.Run(t, new(memory.Suite))
-}
-
-func TestIPSec(t *testing.T) {
-	parallel.Run(t, new(ipsec_mechanism.Suite))
+func TestMultiForwarder_VlanTag(t *testing.T) {
+	suite.Run(t, new(multiforwarder_vlantag.Suite))
 }

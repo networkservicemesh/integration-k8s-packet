@@ -130,19 +130,6 @@ jobs:
           mv ./clusterctl /usr/local/bin/clusterctl
           clusterctl version
 
-      - name: Install metal CLI
-        run: |
-          curl -L https://github.com/equinix/metal-cli/releases/download/v0.16.0/metal-linux-amd64 -o metal
-          chmod +x ./metal
-          mv ./metal /usr/local/bin/metal
-          metal -v
-
-      - name: Checkout deployments
-        uses: actions/checkout@v4
-        with:
-          repository: networkservicemesh/deployments-k8s
-          path: networkservicemesh/deployments-k8s
-
       - name: Setup ssh
         working-directory: ${{ github.repository }}
         id: setup_ssh
@@ -193,7 +180,7 @@ jobs:
         working-directory: ${{ github.repository }}
 
       - name: Upload logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           name: ${{ matrix.config.node_type }}-${{ matrix.config.CNI }}-logs

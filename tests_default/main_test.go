@@ -2,6 +2,8 @@
 //
 // Copyright (c) 2023 Cisco and/or its affiliates.
 //
+// Copyright (c) 2024 Pragmagic Inc. and/or its affiliates.
+//
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,5 +55,12 @@ func TestRunObservabilitySuite(t *testing.T) {
 }
 
 func TestFeatureSuite(t *testing.T) {
-	parallel.Run(t, new(features.Suite), "TestVl3_basic", "TestVl3_dns", "TestScale_from_zero", "TestVl3_scale_from_zero", "TestSelect_forwarder")
+	excludedTests := []string{
+		"TestVl3_basic",
+		"TestVl3_dns",
+		"TestScale_from_zero",
+		"TestVl3_scale_from_zero",
+		"TestSelect_forwarder"}
+
+	parallel.Run(t, new(features.Suite), parallel.WithExcludedTests(excludedTests))
 }

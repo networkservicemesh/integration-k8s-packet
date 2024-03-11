@@ -37,20 +37,41 @@ jobs:
       - name: Set up /bin permissions
         run: |
           sudo chmod -R 777 /bin
+
+      - name: Install metal CLI
+        run: |
+          curl -L https://github.com/equinix/metal-cli/releases/download/v0.22.0/metal-linux-amd64 -o metal
+          chmod +x ./metal
+          mv ./metal /usr/local/bin/metal
+          metal -v
+
       - name: Set envs
         run: |
           id=${{ matrix.CNI }}-${{ github.run_number }}
-          echo METRO=ny >> $GITHUB_ENV
           if [[ "${{ matrix.CNI }}" == "calico-vpp" ]]; then
             id=calico-${{ github.run_number }}
-            echo METRO=at >> $GITHUB_ENV
           fi
           echo CLUSTER_NAME=nsm-ci-${id} >> $GITHUB_ENV
           echo SSH_KEY=nsm-ssh-${id} >> $GITHUB_ENV
+
+      - name: Find metro
+        run: |
+          metros_to_check=da,ny
+          if [[ "${{ matrix.CNI }}" == "calico-vpp" ]]; then
+            metros_to_check=at,ch
+          fi
+          METRO=$(metal capacity check -m ${metros_to_check} -P n3.xlarge.x86 -q 2 -o json | jq -r '[.[] | select( .available == true ) | .metro][0]')
+          if [ ${METRO} == "null" ]; then
+            exit 1;
+          fi
+          echo METRO=${METRO} >> $GITHUB_ENV
+        env:
+          METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
+
       - name: Set up go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.20.5
+          go-version: 1.20.11
       - name: Checkout files
         uses: actions/checkout@v2
         with:
@@ -70,23 +91,10 @@ jobs:
 
       - name: Install clusterctl
         run: |
-          curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.5.2/clusterctl-linux-amd64 -o clusterctl
+          curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.6.2/clusterctl-linux-amd64 -o clusterctl
           chmod +x ./clusterctl
           mv ./clusterctl /usr/local/bin/clusterctl
           clusterctl version
-
-      - name: Install metal CLI
-        run: |
-          curl -L https://github.com/equinix/metal-cli/releases/download/v0.16.0/metal-linux-amd64 -o metal
-          chmod +x ./metal
-          mv ./metal /usr/local/bin/metal
-          metal -v
-
-      - name: Checkout deployments
-        uses: actions/checkout@v2
-        with:
-          repository: networkservicemesh/deployments-k8s
-          path: networkservicemesh/deployments-k8s
 
       - name: Setup ssh
         working-directory: ${{ github.repository }}

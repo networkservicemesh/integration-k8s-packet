@@ -27,7 +27,7 @@ source scripts/include/wait-pids.sh
 source scripts/include/wait-start.sh
 
 ## Run clusterctl
-clusterctl init --infrastructure packet:v0.7.2 || exit 1
+clusterctl init --infrastructure packet:v0.8.0 || exit 1
 clusterctl generate cluster ${CLUSTER_NAME}  \
   --kubernetes-version ${KUBERNETES_VERSION} \
   --control-plane-machine-count=1            \

@@ -134,11 +134,8 @@ jobs:
       - name: Integration tests
         run: |
           export KUBECONFIG=$HOME/.kube/config_packet
-          if [[ "${{ matrix.CNI }}" == "calico-vpp" ]]; then
-            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }} -parallel 4 || true
-          else
-            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }} -parallel 4
-          fi
+          go test -count 1 -timeout 50m -race -v ./tests_${{ matrix.CNI }} -run TestRunOVS
+          false
         env:
           ARTIFACTS_DIR: logs
         working-directory: ${{ github.repository }}

@@ -2,6 +2,8 @@
 //
 // Copyright (c) 2023 Cisco and/or its affiliates.
 //
+// Copyright (c) 2024 Nordix and/or its affiliates.
+//
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +31,7 @@ import (
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder_vlantag"
 	"github.com/networkservicemesh/integration-tests/suites/observability"
+	"github.com/networkservicemesh/integration-tests/suites/ovs"
 	"github.com/networkservicemesh/integration-tests/suites/sriov_vlantag"
 )
 
@@ -54,4 +57,20 @@ func TestRunObservabilitySuite(t *testing.T) {
 
 func TestFeatureSuite(t *testing.T) {
 	parallel.Run(t, new(features.Suite), "TestVl3_basic", "TestVl3_dns", "TestScale_from_zero", "TestVl3_scale_from_zero", "TestSelect_forwarder")
+}
+
+type ovsSuite struct {
+	ovs.Suite
+}
+
+func (s *ovsSuite) BeforeTest(suiteName, testName string) {
+	switch testName {
+	case
+		"TestSmartVF2SmartVF",
+		"TestKernel2KernelVLAN":
+		s.T().Skip()
+	}
+}
+func TestRunOVS(t *testing.T) {
+	suite.Run(t, new(ovsSuite))
 }

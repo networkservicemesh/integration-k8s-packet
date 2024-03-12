@@ -2,6 +2,8 @@
 //
 // Copyright (c) 2023 Cisco and/or its affiliates.
 //
+// Copyright (c) 2024 Nordix and/or its affiliates.
+//
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +31,7 @@ import (
 	"github.com/networkservicemesh/integration-tests/suites/memory"
 	"github.com/networkservicemesh/integration-tests/suites/multiforwarder"
 	"github.com/networkservicemesh/integration-tests/suites/observability"
+	"github.com/networkservicemesh/integration-tests/suites/ovs"
 	"github.com/networkservicemesh/integration-tests/suites/sriov"
 )
 
@@ -66,4 +69,18 @@ func (s *featuresSuite) BeforeTest(suiteName, testName string) {
 
 func TestRunFeatureSuiteCalico(t *testing.T) {
 	parallel.Run(t, new(featuresSuite), "TestVl3_basic", "TestVl3_dns", "TestScale_from_zero", "TestVl3_scale_from_zero", "TestSelect_forwarder")
+}
+
+type ovsSuite struct {
+	ovs.Suite
+}
+
+func (s *ovsSuite) BeforeTest(suiteName, testName string) {
+	if testName == "TestKernel2KernelVLAN" {
+		s.T().Skip()
+	}
+}
+
+func TestRunOVS(t *testing.T) {
+	suite.Run(t, new(ovsSuite))
 }

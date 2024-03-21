@@ -1,4 +1,6 @@
-// Copyright (c) 2024 Cisco and/or its affiliates.
+// Copyright (c) 2020-2022 Doc.ai and/or its affiliates.
+//
+// Copyright (c) 2023-2024 Cisco and/or its affiliates.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -14,16 +16,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main_test
+package default_test
 
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
-
-	"github.com/networkservicemesh/integration-tests/suites/observability"
+	"github.com/networkservicemesh/integration-tests/extensions/parallel"
+	"github.com/networkservicemesh/integration-tests/suites/basic"
+	"github.com/networkservicemesh/integration-tests/suites/ipsec_mechanism"
+	"github.com/networkservicemesh/integration-tests/suites/memory"
 )
 
-func TestRunObservabilitySuite(t *testing.T) {
-	suite.Run(t, new(observability.Suite))
+func TestBasic(t *testing.T) {
+	parallel.Run(t, new(basic.Suite))
+}
+
+func TestMemory(t *testing.T) {
+	parallel.Run(t, new(memory.Suite))
+}
+
+func TestIPSec(t *testing.T) {
+	parallel.Run(t, new(ipsec_mechanism.Suite))
 }

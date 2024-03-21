@@ -14,15 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main_test
+package default_test
 
 import (
 	"testing"
 
-	"github.com/networkservicemesh/integration-tests/extensions/parallel"
-	"github.com/networkservicemesh/integration-tests/suites/features"
+	"github.com/stretchr/testify/suite"
+
+	"github.com/networkservicemesh/integration-tests/suites/heal"
 )
 
-func TestFeatureSuite(t *testing.T) {
-	parallel.Run(t, new(features.Suite), "TestVl3_ipv6", "TestVl3_dns", "TestVl3_lb", "TestVl3_scale_from_zero", "TestScale_from_zero", "TestSelect_forwarder")
+func TestHeal(t *testing.T) {
+	suite.Run(t, new(heal.Suite))
 }

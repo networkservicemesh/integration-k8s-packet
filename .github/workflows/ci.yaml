@@ -168,11 +168,11 @@ jobs:
         run: |
           export KUBECONFIG=$HOME/.kube/config_packet
           if [[ "${{ matrix.config.CNI }}" == "calico-vpp" ]]; then
-            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.config.CNI }} -parallel 4 || true
+            go test -count 1 -timeout 1h50m -race -v ./test/${{ matrix.config.CNI }} -parallel 4 || true
           elif [ "${SRIOV_ENABLED}" == true ]; then
-            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.config.CNI }} -parallel 4
+            go test -count 1 -timeout 1h50m -race -v ./test/${{ matrix.config.CNI }} -parallel 4
           else
-            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.config.CNI }}/main_test.go -parallel 4
+            go test -count 1 -timeout 1h50m -race -v ./test/${{ matrix.config.CNI }}/main_test.go -parallel 4
           fi
         env:
           ARTIFACTS_DIR: logs
@@ -183,7 +183,7 @@ jobs:
         if: ${{ always() }}
         with:
           name: ${{ matrix.config.node_type }}-${{ matrix.config.CNI }}-logs
-          path: ${{ github.repository }}/tests_${{ matrix.config.node_type }}_${{ matrix.config.CNI }}/logs
+          path: ${{ github.repository }}/test/${{ matrix.config.CNI }}/logs
 
       - name: Cleanup
         if: ${{ always() }}

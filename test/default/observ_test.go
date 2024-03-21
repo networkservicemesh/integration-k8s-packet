@@ -14,16 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main_test
+package default_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/networkservicemesh/integration-tests/suites/heal"
+	"github.com/networkservicemesh/integration-tests/suites/observability"
 )
 
-func TestHeal(t *testing.T) {
-	suite.Run(t, new(heal.Suite))
+func TestRunObservabilitySuite(t *testing.T) {
+	suite.Run(t, new(observability.Suite))
 }

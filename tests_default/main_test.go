@@ -55,12 +55,11 @@ func TestRunObservabilitySuite(t *testing.T) {
 }
 
 func TestFeatureSuite(t *testing.T) {
-	excludedTests := []string{
-		"TestVl3_basic",
-		"TestVl3_dns",
-		"TestScale_from_zero",
-		"TestVl3_scale_from_zero",
-		"TestSelect_forwarder"}
-
-	parallel.Run(t, new(features.Suite), parallel.WithExcludedTests(excludedTests))
+	featuresSuite := new(features.Suite)
+	parallel.Run(t, featuresSuite,
+		parallel.WithRunningTestsSynchronously(
+			featuresSuite.TestVl3_dns,
+			featuresSuite.TestVl3_scale_from_zero,
+			featuresSuite.TestScale_from_zero,
+			featuresSuite.TestSelect_forwarder))
 }

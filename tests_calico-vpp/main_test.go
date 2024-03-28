@@ -67,12 +67,11 @@ func (s *featuresSuite) BeforeTest(suiteName, testName string) {
 }
 
 func TestRunFeatureSuiteCalico(t *testing.T) {
-	excludedTests := []string{
-		"TestVl3_basic",
-		"TestVl3_dns",
-		"TestScale_from_zero",
-		"TestVl3_scale_from_zero",
-		"TestSelect_forwarder"}
-
-	parallel.Run(t, new(featuresSuite), parallel.WithExcludedTests(excludedTests))
+	featSuite := new(featuresSuite)
+	parallel.Run(t, featSuite,
+		parallel.WithRunningTestsSynchronously(
+			featSuite.TestVl3_dns,
+			featSuite.TestVl3_scale_from_zero,
+			featSuite.TestScale_from_zero,
+			featSuite.TestSelect_forwarder))
 }

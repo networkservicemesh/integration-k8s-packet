@@ -2,6 +2,8 @@
 //
 // Copyright (c) 2023-2024 Cisco and/or its affiliates.
 //
+// Copyright (c) 2024 Pragmagic Inc. and/or its affiliates.
+//
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,5 +67,11 @@ func (s *featuresSuite) BeforeTest(suiteName, testName string) {
 }
 
 func TestRunFeatureSuiteCalico(t *testing.T) {
-	parallel.Run(t, new(featuresSuite), "TestVl3_basic", "TestVl3_dns", "TestScale_from_zero", "TestVl3_scale_from_zero", "TestSelect_forwarder")
+	featSuite := new(featuresSuite)
+	parallel.Run(t, featSuite,
+		parallel.WithRunningTestsSynchronously(
+			featSuite.TestVl3_dns,
+			featSuite.TestVl3_scale_from_zero,
+			featSuite.TestScale_from_zero,
+			featSuite.TestSelect_forwarder))
 }

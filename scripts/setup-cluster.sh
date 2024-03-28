@@ -27,7 +27,7 @@ source scripts/include/wait-pids.sh
 source scripts/include/wait-start.sh
 
 ## Run clusterctl
-clusterctl init --infrastructure packet:v0.7.2 || exit 1
+clusterctl init --infrastructure packet:v0.8.0 || exit 1
 clusterctl generate cluster ${CLUSTER_NAME}  \
   --kubernetes-version ${KUBERNETES_VERSION} \
   --control-plane-machine-count=1            \
@@ -57,7 +57,7 @@ done
 
 # Wait for packet servers to be ready
 sleep 30s
-kubectl wait --timeout=30m --for=condition=Ready=true packetmachine -l cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
+kubectl wait --timeout=50m --for=condition=Ready=true packetmachine -l cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
 result=$?
 if [ $result -ne 0 ]; then
   clusterctl describe cluster ${CLUSTER_NAME} --echo
@@ -96,7 +96,9 @@ for i in {1..30}; do
 done
 
 ## Setup SR-IOV
-/bin/bash scripts/sriov/setup-SRIOV.sh "${master_node}" "${master_ip}" "${worker_node}" "${worker_ip}" "${sriov_vlan}" "${enable8021q}" "${SSH_OPTS}" || exit 12
+if [[ "$SRIOV_ENABLED" == true ]]; then
+  /bin/bash scripts/sriov/setup-SRIOV.sh "${master_node}" "${master_ip}" "${worker_node}" "${worker_ip}" "${sriov_vlan}" "${enable8021q}" "${SSH_OPTS}" || exit 12
+fi
 
 ## Remove master label from the control-plane node to be able to use it as worker node
 # For some versions of kubernetes you need to use node-role.kubernetes.io/master-

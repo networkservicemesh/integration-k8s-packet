@@ -26,31 +26,85 @@ jobs:
   checkgomod:
     uses: networkservicemesh/.github/.github/workflows/checkgomod.yaml@main
 
-  packet:
-    name: packet (CNI ${{ matrix.CNI }})
+  make-matrix:
+    name: make matrix
     runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      matrix: ${{ steps.make-matrix.outputs.matrix }}
+    steps:
+      - id: make-matrix
+        run: |
+          if ${{ startsWith(github.ref_name, 'release/') }}; then
+            echo "matrix={\"config\":[                                \
+            {\"node_type\":\"n3.xlarge.x86\",\"CNI\":\"default\"},    \
+            {\"node_type\":\"n3.xlarge.x86\",\"CNI\":\"calico-vpp\"}, \
+            {\"node_type\":\"c3.large.arm64\",\"CNI\":\"default\"}    \
+            ]}" >> $GITHUB_OUTPUT
+          else
+            echo "matrix={\"config\":[                                \
+            {\"node_type\":\"n3.xlarge.x86\",\"CNI\":\"default\"},    \
+            {\"node_type\":\"n3.xlarge.x86\",\"CNI\":\"calico-vpp\"}  \
+            ]}" >> $GITHUB_OUTPUT
+          fi
+
+  packet:
+    name: ${{ matrix.config.node_type }} (CNI ${{ matrix.config.CNI }})
+    runs-on: ubuntu-latest
+    needs: make-matrix
     strategy:
       fail-fast: false
-      matrix:
-        CNI: ["default", "calico-vpp"]
+      matrix: ${{ fromJSON(needs.make-matrix.outputs.matrix) }}
     steps:
       - name: Set up /bin permissions
         run: |
           sudo chmod -R 777 /bin
+
+      - name: Install metal CLI
+        run: |
+          curl -L https://github.com/equinix/metal-cli/releases/download/v0.22.0/metal-linux-amd64 -o metal
+          chmod +x ./metal
+          mv ./metal /usr/local/bin/metal
+          metal -v
+
       - name: Set envs
         run: |
-          id=${{ matrix.CNI }}-${{ github.run_number }}
-          echo METRO=ny >> $GITHUB_ENV
-          if [[ "${{ matrix.CNI }}" == "calico-vpp" ]]; then
-            id=calico-${{ github.run_number }}
-            echo METRO=at >> $GITHUB_ENV
+          # Set SRIOV_ENABLED
+          echo SRIOV_ENABLED=true >> $GITHUB_ENV
+          if [[ "${{ matrix.config.node_type }}" != "n3.xlarge.x86" ]]; then
+            echo SRIOV_ENABLED=false >> $GITHUB_ENV
+          fi
+
+          # Set CLUSTER_NAME and SSH_KEY
+          node_type=${{ matrix.config.node_type }}
+          id=${node_type:0:2}-${{ github.run_number }}
+          if [[ "${{ matrix.config.CNI }}" == "calico-vpp" ]]; then
+            id=c-${id}
           fi
           echo CLUSTER_NAME=nsm-ci-${id} >> $GITHUB_ENV
           echo SSH_KEY=nsm-ssh-${id} >> $GITHUB_ENV
+
+      # Checking server availability by metro and node_type
+      - name: Find metro
+        run: |
+          metros_to_check=da,ny
+          if [[ "${{ matrix.config.CNI }}" == "calico-vpp" ]]; then
+            metros_to_check=at,ch
+          elif [[ "${{ matrix.config.node_type }}" == "c3.large.arm64" ]]; then
+            metros_to_check=da,dc
+          fi
+          METRO=$(metal capacity check -m ${metros_to_check} -P "${{ matrix.config.node_type }}" -q 2 -o json | jq -r '[.[] | select( .available == true ) | .metro][0]')
+          if [ ${METRO} == "null" ]; then
+            exit 1;
+          fi
+          echo METRO=${METRO} >> $GITHUB_ENV
+        env:
+          METAL_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
+
       - name: Set up go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.20.5
+          go-version: 1.20.11
       - name: Checkout files
         uses: actions/checkout@v2
         with:
@@ -70,23 +124,10 @@ jobs:
 
       - name: Install clusterctl
         run: |
-          curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.5.2/clusterctl-linux-amd64 -o clusterctl
+          curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.6.2/clusterctl-linux-amd64 -o clusterctl
           chmod +x ./clusterctl
           mv ./clusterctl /usr/local/bin/clusterctl
           clusterctl version
-
-      - name: Install metal CLI
-        run: |
-          curl -L https://github.com/equinix/metal-cli/releases/download/v0.16.0/metal-linux-amd64 -o metal
-          chmod +x ./metal
-          mv ./metal /usr/local/bin/metal
-          metal -v
-
-      - name: Checkout deployments
-        uses: actions/checkout@v2
-        with:
-          repository: networkservicemesh/deployments-k8s
-          path: networkservicemesh/deployments-k8s
 
       - name: Setup ssh
         working-directory: ${{ github.repository }}
@@ -103,7 +144,7 @@ jobs:
       - name: Setup cluster
         uses: nick-fields/retry@v2.8.3
         with:
-          timeout_minutes: 50
+          timeout_minutes: 60
           max_attempts: 3
           command: |
             cd ${{ github.repository }}
@@ -119,17 +160,19 @@ jobs:
           PROJECT_ID: 383890d0-f5d1-4de1-881a-4d1ede549d18
           NODE_OS: ubuntu_20_04
           KUBERNETES_VERSION: "v1.27.1"
-          CNI: ${{ matrix.CNI }}
-          CONTROLPLANE_NODE_TYPE: "n3.xlarge.x86"
-          WORKER_NODE_TYPE: "n3.xlarge.x86"
+          CNI: ${{ matrix.config.CNI }}
+          CONTROLPLANE_NODE_TYPE: ${{ matrix.config.node_type }}
+          WORKER_NODE_TYPE: ${{ matrix.config.node_type }}
 
       - name: Integration tests
         run: |
           export KUBECONFIG=$HOME/.kube/config_packet
-          if [[ "${{ matrix.CNI }}" == "calico-vpp" ]]; then
-            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }} -parallel 4 || true
+          if [[ "${{ matrix.config.CNI }}" == "calico-vpp" ]]; then
+            go test -count 1 -timeout 1h50m -race -v ./test/${{ matrix.config.CNI }} -parallel 4 || true
+          elif [ "${SRIOV_ENABLED}" == true ]; then
+            go test -count 1 -timeout 1h50m -race -v ./test/${{ matrix.config.CNI }} -parallel 4
           else
-            go test -count 1 -timeout 1h50m -race -v ./tests_${{ matrix.CNI }} -parallel 4
+            go test -count 1 -timeout 1h50m -race -v ./test/${{ matrix.config.CNI }}/main_test.go -parallel 4
           fi
         env:
           ARTIFACTS_DIR: logs
@@ -139,8 +182,8 @@ jobs:
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
-          name: ${{ matrix.CNI }}-logs
-          path: ${{ github.repository }}/tests_${{ matrix.CNI }}/logs
+          name: ${{ matrix.config.node_type }}-${{ matrix.config.CNI }}-logs
+          path: ${{ github.repository }}/test/${{ matrix.config.CNI }}/logs
 
       - name: Cleanup
         if: ${{ always() }}

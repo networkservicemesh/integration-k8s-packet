@@ -1,5 +1,7 @@
 // Copyright (c) 2024 Cisco and/or its affiliates.
 //
+// Copyright (c) 2024 Pragmagic Inc. and/or its affiliates.
+//
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,5 +26,13 @@ import (
 )
 
 func TestFeatureSuite(t *testing.T) {
-	parallel.Run(t, new(features.Suite), "TestVl3_ipv6", "TestVl3_dns", "TestVl3_lb", "TestVl3_scale_from_zero", "TestScale_from_zero", "TestSelect_forwarder")
+	featuresSuite := new(features.Suite)
+	parallel.Run(t, featuresSuite,
+		parallel.WithRunningTestsSynchronously(
+			featuresSuite.TestVl3_ipv6,
+			featuresSuite.TestVl3_dns,
+			featuresSuite.TestVl3_lb,
+			featuresSuite.TestVl3_scale_from_zero,
+			featuresSuite.TestScale_from_zero,
+			featuresSuite.TestSelect_forwarder))
 }

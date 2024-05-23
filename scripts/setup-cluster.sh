@@ -4,7 +4,7 @@
 sshkey=$1
 
 SSH_OPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ${sshkey}"
-export SRIOV_INTERFACE="ens6f3"
+export SRIOV_INTERFACE="ens6f2np2"
 sriov_vlan="1044"
 enable8021q="true"
 
@@ -16,7 +16,7 @@ if [[ "$CNI" == "calico-vpp" ]]; then # calico
   export CALICO_MASTER_IP="10.0.0.$(( base_ip + 1 ))"
   export CALICO_WORKER_IP="10.0.0.$(( base_ip + 2 ))"
   export CALICO_CIDR_PREFIX="30"
-  export CALICO_INTERFACE="ens6f1"
+  export CALICO_INTERFACE="ens6f0np0"
   sriov_vlan="1045"
   enable8021q="false"
 fi

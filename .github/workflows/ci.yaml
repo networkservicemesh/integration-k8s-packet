@@ -87,7 +87,7 @@ jobs:
       # Checking server availability by metro and node_type
       - name: Find metro
         run: |
-          metros_to_check=da,ny
+          metros_to_check=da,at
           if [[ "${{ matrix.config.CNI }}" == "calico-vpp" ]]; then
             metros_to_check=at,ch
           elif [[ "${{ matrix.config.node_type }}" == "c3.large.arm64" ]]; then

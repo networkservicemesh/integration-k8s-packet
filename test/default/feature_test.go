@@ -34,5 +34,6 @@ func TestFeatureSuite(t *testing.T) {
 			featuresSuite.TestVl3_lb,
 			featuresSuite.TestVl3_scale_from_zero,
 			featuresSuite.TestScale_from_zero,
-			featuresSuite.TestSelect_forwarder))
+			featuresSuite.TestSelect_forwarder,
+			featuresSuite.TestScaled_registry))
 }

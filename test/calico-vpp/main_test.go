@@ -73,5 +73,9 @@ func TestRunFeatureSuiteCalico(t *testing.T) {
 			featSuite.TestVl3_dns,
 			featSuite.TestVl3_scale_from_zero,
 			featSuite.TestScale_from_zero,
-			featSuite.TestSelect_forwarder))
+			featSuite.TestSelect_forwarder,
+			featSuite.TestVl3_scale_from_zero,
+			featSuite.TestVl3_ipv6,
+			featSuite.TestVl3_lb,
+			featSuite.TestScaled_registry))
 }
